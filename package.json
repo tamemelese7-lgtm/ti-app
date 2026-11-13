@@ -1,14 +1,16 @@
 {
   "name": "ti-app",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
-  "description": "Ti — a private world for two",
+  "description": "Ti - a private world for two",
   "scripts": {
     "android:prepare": "node scripts/set-url.js && npx cap add android && npx cap sync android && npx capacitor-assets generate --android && node scripts/patch-android.js"
   },
   "dependencies": {
     "@capacitor/android": "^8.6.2",
-    "@capacitor/core": "^8.6.2"
+    "@capacitor/core": "^8.6.2",
+    "@capacitor/share": "^8.0.3",
+    "@capacitor/filesystem": "^8.1.5"
   },
   "devDependencies": {
     "@capacitor/assets": "^4.0.0",
