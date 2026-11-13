@@ -849,7 +849,7 @@ function renderSheet(){
   ${L?`<div class="bigdisc ${joined&&!aud.paused?'':'paused'}"></div>
     <div style="text-align:center;font-family:Unbounded;font-weight:500;font-size:18px">${esc(L.title)}</div>
     <div class="mini" id="shTime" style="text-align:center;margin-top:4px">${spot?'Spotify':L.playing?'Playing for both of you':'Paused'}${d?` · ${fmtS(e)} / ${fmtS(d)}`:''}</div>
-    ${spot?`<div class="ctrls">${!joined?'<button class="ib solid" id="sJoin">▶</button>':adm?`<button class="ib" id="sRestart">⏮</button><button class="ib solid" id="sPP">${L.playing?'⏸':'▶'}</button><button class="ib" id="sStop">⏹</button>`:''}</div><div class="mini" style="text-align:center">Plays full songs when this phone is signed in to Spotify; otherwise a 30-second preview.</div>`:
+    ${spot?`<div class="ctrls">${!joined?'<button class="ib solid" id="sJoin">▶</button>':adm?`<button class="ib" id="sRestart">⏮</button><button class="ib solid" id="sPP">${L.playing?'⏸':'▶'}</button><button class="ib" id="sStop">⏹</button>`:''}</div><a class="btn solid block" href="${esc(L.url)}" target="_blank" rel="noopener" style="margin-top:6px">🎧 Play full song in Spotify app</a><div class="mini" style="text-align:center;margin-top:8px">The player above is Spotify's 30-second preview. For the full song, tap the button — it opens in your Spotify app.</div>`:
     `<div class="bar" id="seekBar" style="margin-top:14px;height:9px;${adm?'cursor:pointer':''}"><i style="width:${d?Math.min(100,e/d*100):0}%"></i></div>
     <div class="ctrls">${!joined?'<button class="ib solid" id="sJoin">▶</button>':adm?`<button class="ib" id="sRestart">⏮</button><button class="ib solid" id="sPP">${L.playing?'⏸':'▶'}</button><button class="ib" id="sStop">⏹</button>`:`<button class="ib solid" id="sMute">${aud.muted?'🔇':'🔊'}</button>`}</div>
     <div class="mini" style="margin-top:12px">YOUR VOLUME · only on this phone</div>
@@ -860,7 +860,7 @@ function renderSheet(){
     <label class="btn block" style="margin-bottom:8px">＋ Upload song (MP3, up to 20 MB)<input type="file" accept="audio/*" id="sUp" style="display:none"></label>
     ${songs.slice().reverse().map(x=>`<div class="song" data-id="${x.id}"><div class="t"><b>${esc(x.title)}</b><span class="mini">${(x.size/1048576).toFixed(1)} MB${x.dur?' · '+fmtS(x.dur):''}</span></div><button class="btn ok sm" data-p="play">▶ Both</button><button class="btn sm" data-p="del">🗑</button></div>`).join('')||'<div class="mini">No songs yet.</div>'}
     <div class="eyebrow">Or a Spotify link</div>
-    <input type="url" id="sSpot" placeholder="https://open.spotify.com/track/…"><button class="btn sm" style="margin-top:8px" id="sSpotGo">Share with her</button>`:''}`;
+    <input type="url" id="sSpot" placeholder="https://open.spotify.com/track/…" enterkeyhint="send"><button class="btn sm" style="margin-top:8px" id="sSpotGo">Share with her</button>`:''}`;
   const q=x=>$('#msBody '+x);
   if(q('#sJoin'))q('#sJoin').onclick=()=>{join();drawSheet(true);};
   if(q('#sMute'))q('#sMute').onclick=()=>{aud.muted=!aud.muted;drawSheet(true);drawBar();};
@@ -876,9 +876,12 @@ function renderSheet(){
     else{await withBtn(b,async()=>{await api(`/api/admin/audio/${id}/delete`,{});await reload(true);drawSheet(true);});}});
   if(q('#sUp'))q('#sUp').onchange=async e=>{const f=e.target.files[0];if(!f)return;if(f.size>20*1048576){toast('Max 20 MB');return;}
     toast('Uploading '+f.name+'…');try{const r=await fetch(API+'/api/admin/audio',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':f.type||'audio/mpeg','X-Title':encodeURIComponent(f.name)},body:f});if(!r.ok)throw new Error((await r.json()).error);await reload(true);drawSheet(true);toast('Song added 🎶');}catch(er){toast('Upload failed: '+er.message);}};
-  if(q('#sSpotGo'))q('#sSpotGo').onclick=async()=>{const u=q('#sSpot').value.trim();if(!spotifyEmbed(u)){toast('Paste a Spotify track or playlist link');return;}
-    let title='Spotify';try{const o=await (await fetch('https://open.spotify.com/oembed?url='+encodeURIComponent(u))).json();if(o&&o.title)title=o.title;}catch(e){}
-    joined=true;await act('spotify',{url:u,title});toast('🎧 Shared with her');};
+  const spGo=async()=>{const inp=q('#sSpot'),u=(inp.value.match(/https?:\/\/\S+/)||[''])[0].trim();if(!spotifyEmbed(u)){toast('Paste a Spotify song link');return;}
+    inp.blur();toast('Sharing…');let title='Spotify song';
+    try{const ac=new AbortController();const t=setTimeout(()=>ac.abort(),2500);const o=await (await fetch('https://open.spotify.com/oembed?url='+encodeURIComponent(u),{signal:ac.signal})).json();clearTimeout(t);if(o&&o.title)title=o.title;}catch(e){}
+    joined=true;await act('spotify',{url:u.split('?')[0],title});toast('🎧 Shared with her');};
+  if(q('#sSpotGo'))q('#sSpotGo').onclick=spGo;
+  if(q('#sSpot'))q('#sSpot').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();spGo();}};
 }
 
 
