@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="google" content="notranslate">
+<meta name="theme-color" content="#c2185b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Ti</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;500;700;900&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#fff;--mute:rgba(255,255,255,.78);--dim:rgba(255,255,255,.55);
+  --hot:#ff2d87;--rose:#ff5fa2;--blush:#ffc2dc;--berry:#c2185b;--plum:#6a1b9a;
+  --ok:#8affd1;--bad:#ffd0d6;--badbg:rgba(255,50,90,.35);--gold:#ffe08a;
+  --edge:rgba(255,255,255,.42);--r:26px;
+  --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;color:var(--ink);font-family:Manrope,'Noto Sans Ethiopic',system-ui,sans-serif;overflow:hidden;background:#b0125c}
+.am{font-family:'Noto Sans Ethiopic',Manrope,sans-serif}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,textarea{font:inherit;color:var(--ink)}
+::placeholder{color:rgba(255,255,255,.6)}
+
+/* ---------- living background ---------- */
+#bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:linear-gradient(160deg,#ff4f9a 0%,#e0137a 38%,#a0127a 70%,#5e1a9e 100%)}
+#bg i{position:absolute;border-radius:50%;filter:blur(60px);opacity:.75;mix-blend-mode:screen;animation:drift 18s ease-in-out infinite alternate}
+#bg i:nth-child(1){width:70vmax;height:70vmax;left:-25vmax;top:-20vmax;background:#ff8ec4}
+#bg i:nth-child(2){width:60vmax;height:60vmax;right:-25vmax;top:20vh;background:#ff2d87;animation-duration:22s}
+#bg i:nth-child(3){width:55vmax;height:55vmax;left:-10vmax;bottom:-30vmax;background:#9b2ff7;animation-duration:26s}
+#bg i:nth-child(4){width:35vmax;height:35vmax;right:5vmax;bottom:5vh;background:#ffb27a;opacity:.45;animation-duration:20s}
+@keyframes drift{to{transform:translate(8vmax,6vmax) scale(1.15)}}
+#bgv{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;opacity:0;transition:opacity 1.5s}
+#bgv.on{opacity:1}
+#tint{position:fixed;inset:0;z-index:2;background:linear-gradient(180deg,rgba(194,24,91,.18),rgba(106,27,154,.28));pointer-events:none}
+body.hasvideo #tint{background:linear-gradient(180deg,rgba(160,10,80,.38),rgba(70,10,90,.55))}
+
+/* ---------- glass ---------- */
+.glass{position:relative;border-radius:var(--r);
+  background:linear-gradient(135deg,rgba(255,255,255,.34),rgba(255,255,255,.12) 50%,rgba(255,255,255,.2));
+  border:1px solid var(--edge);
+  backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.75),inset 0 -1px 0 rgba(255,255,255,.15),0 18px 40px -18px rgba(90,0,60,.55);overflow:hidden}
+.glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.28) 47%,transparent 58%);transform:translateX(-130%);animation:sheen 8s ease-in-out infinite}
+@keyframes sheen{0%,62%{transform:translateX(-130%)}88%,100%{transform:translateX(130%)}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 22px;border-radius:99px;font-weight:800;font-size:14px;
+  background:linear-gradient(135deg,rgba(255,255,255,.45),rgba(255,255,255,.18));border:1px solid rgba(255,255,255,.7);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:inset 0 1px 0 #fff,0 10px 26px -10px rgba(120,0,70,.6);transition:transform .15s,opacity .2s}
+.btn:active{transform:scale(.96)}
+.btn[disabled]{opacity:.55;pointer-events:none}
+.btn.solid{background:linear-gradient(135deg,#fff,#ffe1ee);color:#c2185b;border-color:#fff}
+.btn.sm{padding:9px 14px;font-size:12px}
+.btn.ok{background:linear-gradient(135deg,rgba(138,255,209,.55),rgba(138,255,209,.2));border-color:rgba(200,255,235,.9)}
+.btn.bad{background:linear-gradient(135deg,rgba(255,60,100,.55),rgba(255,60,100,.25));border-color:rgba(255,200,210,.9)}
+.btn.block{width:100%}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:rot .8s linear infinite;display:inline-block}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* ---------- logo (secret trigger) ---------- */
+.logo{position:relative;user-select:none;-webkit-user-select:none;touch-action:none;-webkit-touch-callout:none;flex:none}
+.logo img{display:block;width:100%;height:100%;border-radius:28%;box-shadow:0 10px 30px -8px rgba(120,0,60,.7),0 0 0 1px rgba(255,255,255,.5);pointer-events:none}
+.logo .ring{position:absolute;inset:-5px;border-radius:32%;border:2.5px solid #fff;opacity:0;transform:scale(.85);pointer-events:none}
+.logo.pressing .ring{animation:pr 2.5s linear forwards}
+@keyframes pr{0%{opacity:.15;transform:scale(.85)}100%{opacity:1;transform:scale(1.08)}}
+
+/* ---------- screens ---------- */
+.screen{position:fixed;inset:0;z-index:10;display:none;flex-direction:column}
+.screen.on{display:flex;animation:rise .7s cubic-bezier(.2,.8,.2,1)}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(30px + var(--st)) 22px calc(30px + var(--sb));text-align:center}
+.bigtitle{font-family:Unbounded;font-weight:900;font-size:60px;letter-spacing:-.05em;line-height:1;margin-top:22px;text-shadow:0 8px 40px rgba(120,0,60,.5)}
+.tag{margin-top:10px;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:var(--mute)}
+.formcard{width:100%;max-width:420px;padding:22px;margin-top:34px;text-align:left}
+.devbox{margin:14px 0;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.14);border:1px dashed rgba(255,255,255,.55);font-size:13px}
+input[type=text],input[type=url]{width:100%;padding:14px 16px;border-radius:16px;border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.18);outline:none;font-size:15px}
+input[type=text]:focus,input[type=url]:focus,textarea:focus{border-color:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.2)}
+textarea{width:100%;min-height:110px;padding:14px;border-radius:18px;border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.16);resize:none;outline:none;font-size:15px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:9px;background:rgba(255,255,255,.3);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#ffd1e6);border:2px solid #fff;box-shadow:0 4px 14px rgba(120,0,60,.5)}
+input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:0}
+
+/* ---------- app shell ---------- */
+header{display:flex;align-items:center;gap:12px;padding:calc(12px + var(--st)) 18px 8px}
+header .logo{width:40px;height:40px}
+header b{font-family:Unbounded;font-weight:700;font-size:21px;letter-spacing:-.03em;flex:1}
+.hbtn{width:40px;height:40px;border-radius:14px;display:grid;place-items:center}
+.hbtn svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+main{flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 16px calc(112px + var(--sb));-webkit-overflow-scrolling:touch}
+main::-webkit-scrollbar{display:none}
+.view{animation:fade .45s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.h{font-family:Unbounded;font-weight:500;font-size:26px;letter-spacing:-.03em;line-height:1.12;margin:10px 4px 4px}
+.h em{font-style:normal;color:#fff;text-shadow:0 0 22px rgba(255,255,255,.7)}
+.sub{color:var(--mute);font-size:13px;margin:0 4px}
+.eyebrow{font-size:10px;font-weight:800;letter-spacing:.28em;text-transform:uppercase;color:var(--dim);margin:22px 4px 10px}
+.card{padding:18px;margin-bottom:14px}
+.row{display:flex;align-items:center;gap:12px}
+.between{justify-content:space-between}
+.chip{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:5px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.18);white-space:nowrap}
+.chip.ok{background:rgba(138,255,209,.28)} .chip.bad{background:var(--badbg)} .chip.wait{background:rgba(255,224,138,.3)}
+.k{font-family:Unbounded;font-weight:700;font-size:28px;letter-spacing:-.03em}
+.mini{font-size:11px;color:var(--dim);letter-spacing:.04em}
+.empty{padding:26px 18px;text-align:center;color:var(--mute);font-size:14px}
+nav{position:fixed;z-index:20;left:12px;right:12px;bottom:calc(12px + var(--sb));height:68px;display:flex;justify-content:space-around;align-items:center;border-radius:28px}
+nav button{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.7);padding:8px 8px;border-radius:18px;transition:all .25s;min-width:58px}
+nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button.on{color:#fff;background:rgba(255,255,255,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
+nav .dot{position:absolute;top:5px;right:14px;width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 8px #fff}
+
+/* ID card */
+.idc{aspect-ratio:1.586;padding:18px 20px;transition:transform .2s ease-out}
+.idc .holo{position:absolute;inset:-40%;background:conic-gradient(from 0deg,#ffd1e6,#b9e6ff,#e2c6ff,#fff1b8,#ffd1e6);opacity:.28;mix-blend-mode:overlay;animation:rot 16s linear infinite;pointer-events:none}
+.idc .top{position:relative;display:flex;justify-content:space-between;align-items:flex-start}
+.idc .top b{font-family:Unbounded;font-weight:900;font-size:22px;letter-spacing:-.04em}
+.idc .top span{font-size:9px;font-weight:700;letter-spacing:.28em;color:var(--mute);text-transform:uppercase;text-align:right;line-height:1.7}
+.pair{position:relative;display:flex;align-items:center;margin-top:14px}
+.ph{position:relative;width:76px;height:76px;border-radius:50%;border:2.5px solid #fff;background:linear-gradient(135deg,#ffb3d4,#c2185b);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-family:Unbounded;font-weight:700;font-size:24px;box-shadow:0 10px 26px -8px rgba(90,0,50,.7);overflow:hidden}
+.ph input{position:absolute;inset:0;opacity:0}
+.ph+.ph{margin-left:-14px}
+.hl{position:relative;z-index:2;margin-left:-12px;width:32px;height:32px;border-radius:50%;background:#fff;color:#e0137a;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 22px rgba(255,255,255,.9);animation:beat 1.6s ease-in-out infinite}
+@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.18)}30%{transform:scale(1)}45%{transform:scale(1.1)}}
+.idc .names{position:absolute;left:20px;right:20px;bottom:16px;display:flex;justify-content:space-between;align-items:flex-end}
+.idc .names b{font-family:Unbounded;font-weight:500;font-size:14px}
+.idc .names small{display:block;font-size:9px;font-weight:700;letter-spacing:.22em;color:var(--mute);text-transform:uppercase;margin-top:3px}
+.goldchip{width:38px;height:28px;border-radius:6px;background:linear-gradient(135deg,#fff3c4,#d6a646)}
+
+/* ring + bars */
+.ring{position:relative;flex:none}
+.ring svg{transform:rotate(-90deg);display:block}
+.ring .v{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .v b{font-family:Unbounded;font-weight:700;font-size:24px;letter-spacing:-.04em}
+.ring .v small{font-size:9px;font-weight:700;letter-spacing:.2em;color:var(--dim);text-transform:uppercase}
+.bar{height:7px;border-radius:9px;background:rgba(255,255,255,.25);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#fff,#ffd1e6);box-shadow:0 0 10px rgba(255,255,255,.8);transition:width 1s}
+
+/* reveal */
+.reveal{height:220px;border-radius:20px;overflow:hidden;position:relative;background:rgba(255,255,255,.15)}
+.reveal .img{position:absolute;inset:-24px;background-size:cover;background-position:center;transition:filter 1.4s ease}
+
+/* question */
+.q{font-family:Unbounded;font-weight:300;font-size:19px;line-height:1.45}
+
+/* gift */
+.stage{height:290px;display:flex;align-items:center;justify-content:center;position:relative;perspective:800px}
+.box{width:150px;height:150px;position:relative;transform-style:preserve-3d;animation:flt 4s ease-in-out infinite;cursor:pointer}
+@keyframes flt{0%,100%{transform:translateY(0) rotateX(10deg) rotateY(-18deg)}50%{transform:translateY(-12px) rotateX(14deg) rotateY(18deg)}}
+.box .face{position:absolute;inset:0;border-radius:24px;border:1.5px solid #fff;background:linear-gradient(135deg,rgba(255,255,255,.6),rgba(255,255,255,.18) 55%,rgba(255,255,255,.35));backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:inset 0 0 40px rgba(255,255,255,.4),0 30px 60px -18px rgba(90,0,50,.7)}
+.box .rib{position:absolute;left:50%;top:0;bottom:0;width:22px;margin-left:-11px;background:linear-gradient(180deg,#fff,#ffd1e6)}
+.box .rib.hz{left:0;right:0;top:50%;bottom:auto;width:auto;height:22px;margin:-11px 0 0}
+.box .bow{position:absolute;top:-36px;left:50%;margin-left:-30px;font-size:52px;filter:drop-shadow(0 6px 10px rgba(120,0,60,.5))}
+.box .lk{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:36px;z-index:2}
+.shard{position:absolute;left:50%;top:50%;width:150px;height:150px;margin:-75px 0 0 -75px;border:1px solid #fff;background:linear-gradient(135deg,rgba(255,255,255,.85),rgba(255,210,230,.45));transition:transform 1.1s cubic-bezier(.15,.8,.2,1),opacity 1.1s;pointer-events:none}
+.gopen{position:absolute;inset:8px;pointer-events:none;border-radius:22px;background-size:cover;background-position:center;opacity:0;transform:scale(.6);transition:all 1s cubic-bezier(.2,.9,.2,1) .3s;display:flex;align-items:flex-end;padding:16px}
+.gopen.on{opacity:1;transform:none}
+.gopen p{font-family:Unbounded;font-weight:500;font-size:16px;text-shadow:0 2px 14px rgba(0,0,0,.7)}
+.count{display:flex;gap:10px;justify-content:center;margin-top:4px}
+.count div{min-width:64px;text-align:center;padding:10px 6px;border-radius:16px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.5)}
+.count b{font-family:Unbounded;font-size:20px;display:block}
+.count small{font-size:9px;font-weight:700;letter-spacing:.2em;color:var(--mute)}
+
+/* chat */
+.msgs{display:flex;flex-direction:column;gap:8px;min-height:40vh}
+.m{max-width:82%;padding:11px 14px;border-radius:20px;font-size:14.5px;line-height:1.45;word-wrap:break-word}
+.m.mine{align-self:flex-end;background:#fff;color:#a0104f;border-bottom-right-radius:6px;box-shadow:0 8px 20px -10px rgba(90,0,50,.6)}
+.m.theirs{align-self:flex-start;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.55);border-bottom-left-radius:6px}
+.m small{display:block;font-size:10.5px;opacity:.7;margin-top:5px}
+.m .orig{display:block;font-size:11.5px;opacity:.75;margin-top:6px;padding-top:6px;border-top:1px solid currentColor;border-color:rgba(255,255,255,.3);font-style:italic}
+.m.mine .orig{border-color:rgba(160,16,79,.2)}
+.composer{position:fixed;z-index:21;left:12px;right:12px;bottom:calc(88px + var(--sb));display:flex;gap:8px;padding:8px;border-radius:24px}
+.composer input{flex:1;border-radius:18px!important}
+
+/* music */
+.disc{width:54px;height:54px;border-radius:50%;flex:none;background:radial-gradient(circle,#fff 14%,#ff5fa2 15%,#c2185b 52%,#fff 53%,#ffd1e6 66%,#c2185b 68%);animation:rot 5s linear infinite;box-shadow:0 0 24px -4px rgba(255,255,255,.8)}
+iframe.sp{width:100%;height:80px;border:0;border-radius:14px;margin-top:12px}
+
+/* admin */
+.qi{padding:16px;margin-bottom:12px}
+.qi .am{font-size:16px;line-height:1.6}
+.qi .zu{font-size:12px;color:var(--mute);margin-top:6px;font-style:italic}
+.qi .why{font-size:12px;color:var(--mute);margin-top:6px}
+.acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.ans{margin-top:12px;padding:12px;border-radius:14px;background:rgba(255,255,255,.16);border-left:3px solid #fff}
+.score{font-family:Unbounded;font-weight:700;font-size:13px;padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.25)}
+.seg{display:flex;padding:4px;border-radius:99px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.5)}
+.seg button{flex:1;padding:10px;border-radius:99px;font-size:12px;font-weight:800;color:var(--mute)}
+.seg button.on{background:#fff;color:#c2185b}
+.dev{padding:16px;margin-bottom:12px}
+.dev .ava{width:46px;height:46px;border-radius:14px;flex:none;display:flex;align-items:center;justify-content:center;font-family:Unbounded;font-weight:700;background:rgba(255,255,255,.28);border:1px solid #fff}
+.dev.pending{box-shadow:0 0 0 2px rgba(255,224,138,.9),0 0 30px -6px rgba(255,224,138,.9)}
+.dev.banned{opacity:.6}
+.note{font-size:13.5px;line-height:1.7}
+.spark{width:100%;height:80px;display:block}
+
+/* PIN */
+#pinwrap{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(60,0,40,.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#pinwrap.on{display:flex;animation:fade .3s}
+.pinbox{width:300px;padding:24px 22px;text-align:center}
+.pdots{display:flex;gap:12px;justify-content:center;margin:18px 0 20px;min-height:16px}
+.pdots i{width:14px;height:14px;border-radius:50%;border:2px solid #fff}
+.pdots i.f{background:#fff;box-shadow:0 0 10px #fff}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.keys button{height:58px;border-radius:20px;font-family:Unbounded;font-size:20px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.55)}
+.keys button:active{background:rgba(255,255,255,.45)}
+.shake{animation:shake .4s}
+@keyframes shake{20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+
+
+
+/* ---------- listen together ---------- */
+#mbar{position:fixed;z-index:22;left:12px;right:12px;bottom:calc(88px + var(--sb));display:none;align-items:center;gap:10px;padding:8px 10px 8px 8px;border-radius:22px}
+body.listening.inapp #mbar{display:flex;animation:fade .4s}
+#mbar .disc{width:40px;height:40px}
+#mbar .tt{flex:1;min-width:0}
+#mbar .tt b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mbar .tt small{font-size:10.5px;color:var(--mute)}
+#mbar .pbar{height:3px;border-radius:3px;background:rgba(255,255,255,.25);margin-top:5px;overflow:hidden}
+#mbar .pbar i{display:block;height:100%;background:#fff;width:0}
+.ib{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.5);font-size:16px;flex:none}
+.ib.solid{background:#fff;color:#c2185b}
+body.listening main{padding-bottom:calc(176px + var(--sb))}
+body.listening .composer{bottom:calc(152px + var(--sb))}
+#msheet{position:fixed;inset:0;z-index:55;display:none;align-items:flex-end;background:rgba(60,0,40,.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#msheet.on{display:flex;animation:fade .25s}
+#msheet .sh{width:100%;max-height:88vh;overflow-y:auto;border-radius:30px 30px 0 0;padding:14px 18px calc(24px + var(--sb))}
+#msheet .grab{width:44px;height:5px;border-radius:5px;background:rgba(255,255,255,.6);margin:0 auto 14px}
+.bigdisc{width:150px;height:150px;margin:6px auto 14px;border-radius:50%;background:radial-gradient(circle,#fff 9%,#ff5fa2 10%,#c2185b 40%,#fff 41%,#ffd1e6 52%,#c2185b 54%,#7a0f4a 75%,#c2185b 77%);box-shadow:0 0 50px -6px rgba(255,255,255,.9);animation:rot 6s linear infinite}
+.bigdisc.paused,.disc.paused{animation-play-state:paused}
+.ctrls{display:flex;justify-content:center;gap:16px;margin:14px 0 6px}
+.ctrls .ib{width:54px;height:54px;font-size:20px}
+.reacts{display:flex;justify-content:center;gap:10px;margin-top:14px}
+.reacts button{font-size:24px;width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.45)}
+.reacts button:active{transform:scale(1.25)}
+.song{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid rgba(255,255,255,.25)}
+.song .t{flex:1;min-width:0}.song .t b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fly{position:fixed;z-index:90;bottom:120px;font-size:34px;pointer-events:none;animation:flyup 2.6s ease-out forwards}
+@keyframes flyup{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:1;transform:translateY(-40px) scale(1.15)}100%{transform:translateY(-62vh) scale(1);opacity:0}}
+
+/* ---------- cinematic scroll intro ---------- */
+#intro{position:fixed;inset:0;z-index:40;display:none;background:#1a0b14}
+#intro.on{display:block}
+#iCanvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+#iShade{position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.28) 0%,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 55%,rgba(20,0,12,.62) 100%)}
+#iScroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;z-index:2}
+#iScroll::-webkit-scrollbar{display:none}
+#iScroll .track{height:760vh}
+.iTitle{position:fixed;left:0;right:0;top:34%;text-align:center;pointer-events:none;z-index:3;font-family:Unbounded;font-weight:900;font-size:31vw;line-height:1;letter-spacing:.18em;padding-left:.18em;color:rgba(255,255,255,.92);text-shadow:0 6px 40px rgba(0,0,0,.35);will-change:transform,opacity}
+.iTag{position:fixed;left:0;right:0;top:calc(34% + 34vw);text-align:center;pointer-events:none;z-index:3;font-size:11px;font-weight:700;letter-spacing:.5em;text-transform:uppercase;color:rgba(255,255,255,.85)}
+.iChap{position:fixed;left:26px;right:26px;bottom:calc(64px + var(--sb));z-index:3;pointer-events:none;opacity:0;will-change:transform,opacity}
+.iChap h2{font-family:Unbounded;font-weight:700;font-size:40px;letter-spacing:-.03em;line-height:1;text-shadow:0 4px 30px rgba(0,0,0,.4)}
+.iChap p{margin-top:12px;max-width:300px;font-size:14px;line-height:1.55;color:rgba(255,255,255,.88);text-shadow:0 2px 12px rgba(0,0,0,.5)}
+.iChap .n{font-size:10px;font-weight:800;letter-spacing:.32em;color:rgba(255,255,255,.7);margin-bottom:12px}
+.iChap .btn{margin-top:22px;pointer-events:auto}
+#iHint{position:fixed;left:50%;bottom:calc(26px + var(--sb));transform:translateX(-50%);z-index:3;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:10px;font-weight:800;letter-spacing:.32em;color:rgba(255,255,255,.85);transition:opacity .5s}
+#iHint i{width:1.5px;height:34px;background:linear-gradient(#fff,transparent);animation:hint 1.6s ease-in-out infinite}
+@keyframes hint{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+#iBar{position:fixed;right:10px;top:30%;bottom:30%;width:2px;border-radius:2px;background:rgba(255,255,255,.2);z-index:3;pointer-events:none}
+#iBar i{display:block;width:100%;background:#fff;border-radius:2px;height:0}
+#iSkip{position:fixed;z-index:4;top:calc(14px + var(--st));right:14px;font-size:10px;font-weight:800;letter-spacing:.24em;padding:9px 14px;border-radius:99px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#iLoad{position:fixed;left:26px;top:calc(18px + var(--st));z-index:4;font-size:10px;font-weight:700;letter-spacing:.2em;color:rgba(255,255,255,.7)}
+
+#toast{position:fixed;z-index:80;left:50%;top:calc(14px + var(--st));transform:translate(-50%,-140px);padding:12px 18px;border-radius:99px;font-size:13px;font-weight:700;transition:transform .5s cubic-bezier(.2,.9,.2,1);max-width:92vw;text-align:center}
+#toast.on{transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div id="bg"><i></i><i></i><i></i><i></i></div>
+<video id="bgv" muted loop playsinline autoplay preload="auto"></video>
+<div id="tint"></div>
+
+<!-- splash -->
+<section class="screen on" id="sSplash"><div class="center">
+  <div class="logo" style="width:96px;height:96px"><img src="icon.svg" alt=""></div>
+  <div class="bigtitle">Ti</div><div class="tag">only us</div>
+</div></section>
+
+<!-- welcome / register -->
+<section class="screen" id="sWelcome"><div class="center">
+  <div class="logo" id="wLogo" style="width:92px;height:92px"><img src="icon.svg" alt=""><div class="ring"></div></div>
+  <div class="bigtitle">Ti</div><div class="tag">a world for two</div>
+  <div class="glass formcard">
+    <div style="font-family:Unbounded;font-weight:500;font-size:18px">Create your account</div>
+    <div class="sub" style="margin:6px 0 14px">This phone will be linked to your account.</div>
+    <input type="text" id="rName" placeholder="Your name" maxlength="40" autocomplete="off">
+    <div class="devbox" id="devbox">Detecting your phone…</div>
+    <button class="btn solid block" id="rGo">Join</button>
+  </div>
+</div></section>
+
+<!-- pending -->
+<section class="screen" id="sPending"><div class="center">
+  <div class="logo" id="pLogo" style="width:80px;height:80px"><img src="icon.svg" alt=""><div class="ring"></div></div>
+  <div style="font-size:44px;margin-top:26px">⏳</div>
+  <div class="h" style="text-align:center">Waiting for <em>approval</em></div>
+  <div class="sub" style="text-align:center;margin-top:8px;max-width:300px">Your request was sent. Ti opens automatically once you're approved.</div>
+</div></section>
+
+<!-- banned -->
+<section class="screen" id="sBanned"><div class="center">
+  <div class="logo" id="bLogo" style="width:80px;height:80px"><img src="icon.svg" alt=""><div class="ring"></div></div>
+  <div class="h" style="text-align:center;margin-top:24px">This phone can't use <em>Ti</em></div>
+  <div class="sub" style="text-align:center;margin-top:8px">Access is private.</div>
+</div></section>
+
+<!-- app -->
+<section class="screen" id="sApp">
+  <header><div class="logo" id="aLogo"><img src="icon.svg" alt=""><div class="ring"></div></div><b>Ti</b><button class="hbtn glass" id="refreshBtn" aria-label="Refresh"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 4v5h-5"/></svg></button></header>
+  <main id="main"></main>
+  <nav class="glass" id="nav"></nav>
+</section>
+
+
+<!-- cinematic intro -->
+<div id="intro">
+  <canvas id="iCanvas"></canvas><div id="iShade"></div>
+  <div class="iTitle" id="iTitle">Ti</div><div class="iTag" id="iTag">only us</div>
+  <div class="iChap" id="iC1"><div class="n">01</div><h2>Two worlds</h2><p>Two homes, two languages — Amharic and isiZulu. One heart that understands both.</p></div>
+  <div class="iChap" id="iC2"><div class="n">02</div><h2>One story</h2><p>Every question, every answer, every little surprise — written by the two of us, one day at a time.</p></div>
+  <div class="iChap" id="iC3"><div class="n">03</div><h2>Only us</h2><p>A private world for two. Something is waiting for you inside.</p><button class="btn solid" id="iEnter">Enter Ti</button></div>
+  <div id="iHint">SCROLL<i></i></div><div id="iBar"><i></i></div>
+  <div id="iLoad"></div>
+  <div id="iScroll"><div class="track"></div></div>
+  <button id="iSkip">SKIP</button>
+</div>
+
+
+<audio id="aud" preload="auto" playsinline></audio>
+<div id="mbar" class="glass"><div class="disc paused" id="mbDisc"></div><div class="tt"><b id="mbTitle">—</b><small id="mbSub">Listening together</small><div class="pbar"><i id="mbProg"></i></div></div><button class="ib" id="mbMain">▶</button><button class="ib" id="mbHeart">❤️</button><button class="ib" id="mbOpen">🎧</button></div>
+<div id="msheet"><div class="sh glass" id="msBody"></div></div>
+
+<div id="pinwrap"><div class="glass pinbox" id="pinbox">
+  <div style="font-family:Unbounded;font-weight:500;font-size:15px;letter-spacing:.06em">🔐 Secure access</div>
+  <div class="pdots" id="pdots"></div>
+  <div class="keys" id="keys"></div>
+</div></div>
+<div id="toast" class="glass"></div>
+
+<script src="config.js"></script>
+<script>
+(function(){
+"use strict";
+/* ===== config ===== */
+const API = (()=>{try{return localStorage.getItem('ti.api')}catch(e){return null}})() || window.TI_API || 'https://ti-api.tamemele6.workers.dev';
+const BG_VIDEO = 'bg.mp4'; // looping gift-room scene from the intro clip
+
+/* ===== storage ===== */
+const LS={get(k){try{return localStorage.getItem('ti.'+k)}catch(e){return null}},set(k,v){try{localStorage.setItem('ti.'+k,v)}catch(e){}},del(k){try{localStorage.removeItem('ti.'+k)}catch(e){}}};
+function deviceId(){let d=LS.get('dev');if(!d){d=(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2)).replace(/[^A-Za-z0-9-]/g,'');LS.set('dev',d);}return d;}
+let token=LS.get('token'), role=LS.get('role'); // role: member|admin
+let ST=null, tab=null, pollT=null, chatT=null, chatMsgs=[], lastChatAt=0, busy=false;
+
+/* ===== helpers ===== */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>el.classList.remove('on'),2800);}
+function buzz(p){try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
+const fmtDate=t=>t?new Date(t).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+const fmtTime=t=>new Date(t).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+const img=k=>k?`${API}/api/img/${k}?t=${encodeURIComponent(token)}`:'';
+function show(id){$$('.screen').forEach(s=>s.classList.toggle('on',s.id===id));document.body.classList.toggle('inapp',id==='sApp');}
+
+async function api(path,body){
+  const r=await fetch(API+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:body?JSON.stringify(body):undefined});
+  let d={};try{d=await r.json()}catch(e){}
+  if(!r.ok){const e=new Error(d.error||('HTTP '+r.status));e.status=r.status;throw e;}
+  return d;
+}
+
+/* ===== background video (slot for the realistic 3D clip) ===== */
+(function(){const v=$('#bgv');v.src=BG_VIDEO;v.addEventListener('playing',()=>{v.classList.add('on');document.body.classList.add('hasvideo');});v.addEventListener('error',()=>v.remove());const p=v.play();if(p&&p.catch)p.catch(()=>{});})();
+
+/* ===== device ===== */
+async function deviceInfo(){
+  let model='',os='';
+  try{if(navigator.userAgentData&&navigator.userAgentData.getHighEntropyValues){const v=await navigator.userAgentData.getHighEntropyValues(['model','platform','platformVersion']);model=v.model||'';os=(v.platform||'')+(v.platformVersion?' '+v.platformVersion.split('.')[0]:'');}}catch(e){}
+  const ua=navigator.userAgent;
+  if(!model){const m=ua.match(/Android[^;]*;\s*([^;)]+?)(?:\s+Build|\))/);model=m&&m[1]!=='K'?m[1].trim():(/iPhone/.test(ua)?'iPhone':/iPad/.test(ua)?'iPad':'Unknown device');}
+  if(!os){const a=ua.match(/Android\s([\d.]+)/);os=a?'Android '+a[1]:(/iPhone|iPad/.test(ua)?'iOS':'Web');}
+  if(/^SM-/.test(model))model='Samsung '+model;
+  return {model:model.trim(),os};
+}
+let DEV=null;
+
+/* ===== secret admin trigger: long-press 2.5s or 5 quick taps on any logo ===== */
+function armLogo(el){
+  if(!el||el.dataset.armed)return;el.dataset.armed=1;
+  let t=null,taps=[];
+  const start=e=>{e.preventDefault();el.classList.add('pressing');t=setTimeout(()=>{el.classList.remove('pressing');buzz([40,60,40]);openPin();},2500);};
+  const cancel=()=>{clearTimeout(t);el.classList.remove('pressing');};
+  el.addEventListener('pointerdown',start);
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>el.addEventListener(ev,cancel));
+  el.addEventListener('pointerup',()=>{const n=Date.now();taps=taps.filter(x=>n-x<1600);taps.push(n);if(taps.length>=5){taps=[];cancel();buzz(60);openPin();}});
+  el.addEventListener('contextmenu',e=>e.preventDefault());
+}
+['#wLogo','#pLogo','#bLogo','#aLogo'].forEach(s=>armLogo($(s)));
+
+let pin='';
+function openPin(){
+  if(role==='admin'){tab='members';render();toast('Admin');return;}
+  pin='';drawPin();$('#pinwrap').classList.add('on');
+}
+function drawPin(){
+  $('#pdots').innerHTML=Array.from({length:Math.max(4,pin.length)},(_,i)=>`<i class="${i<pin.length?'f':''}"></i>`).join('');
+}
+$('#keys').innerHTML=['1','2','3','4','5','6','7','8','9','×','0','✓'].map(k=>`<button data-k="${k}">${k}</button>`).join('');
+$('#keys').addEventListener('click',async e=>{
+  const k=e.target.dataset.k;if(!k)return;buzz(8);
+  if(k==='×'){if(pin)pin=pin.slice(0,-1);else $('#pinwrap').classList.remove('on');}
+  else if(k==='✓'){await submitPin();return;}
+  else if(pin.length<8)pin+=k;
+  drawPin();
+});
+$('#pinwrap').addEventListener('click',e=>{if(e.target.id==='pinwrap')$('#pinwrap').classList.remove('on');});
+async function submitPin(){
+  if(pin.length<4)return;
+  try{
+    DEV=DEV||await deviceInfo();
+    const d=await api('/api/admin/login',{pin,deviceId:deviceId(),model:DEV.model});
+    token=d.token;role='admin';LS.set('token',token);LS.set('role','admin');
+    $('#pinwrap').classList.remove('on');buzz([20,40,20]);toast('Welcome back');tab='tester';boot();
+  }catch(e){
+    pin='';drawPin();const b=$('#pinbox');b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');buzz([80,50,80]);
+    toast(e.status===429?'Locked — try again later':'Not available');
+  }
+}
+
+/* ===== register ===== */
+async function showWelcome(){
+  show('sWelcome');
+  DEV=DEV||await deviceInfo();
+  $('#devbox').innerHTML=`<div class="mini">THIS PHONE</div><div style="font-weight:800;margin-top:3px">📱 ${esc(DEV.model)}</div><div class="mini" style="margin-top:2px">${esc(DEV.os)}</div>`;
+}
+$('#rGo').onclick=async()=>{
+  const name=$('#rName').value.trim();if(!name){toast('Enter your name');return;}
+  const b=$('#rGo');b.disabled=true;b.innerHTML='<span class="spin"></span>';
+  try{DEV=DEV||await deviceInfo();const d=await api('/api/register',{name,deviceId:deviceId(),model:DEV.model,os:DEV.os});
+    token=d.token;role='member';LS.set('token',token);LS.set('role','member');boot();}
+  catch(e){toast(e.status===403?'This phone is not allowed':'Could not connect — try again');}
+  finally{b.disabled=false;b.textContent='Join';}
+};
+
+/* ===== boot / polling ===== */
+async function boot(){
+  clearInterval(pollT);
+  if(!token){showWelcome();return;}
+  try{
+    ST=await api('/api/state');
+    if(ST.role==='member'&&ST.status==='pending'){show('sPending');pollT=setInterval(boot,8000);return;}
+    if(ST.role==='member'&&ST.status!=='approved'){show('sBanned');return;}
+    role=ST.role;tab=tab||(role==='admin'?'tester':'home');
+    show('sApp');document.body.classList.add('inapp');render();startPoll();checkPing();setListen(ST.listen,ST.now);startListenPoll();
+  }catch(e){
+    if(e.status===401){LS.del('token');LS.del('role');token=null;role=null;showWelcome();return;}
+    if(e.status===403){show('sBanned');return;}
+    toast('Offline — retrying…');setTimeout(boot,5000);
+  }
+}
+function startPoll(){
+  clearInterval(pollT);
+  pollT=setInterval(async()=>{
+    if(document.hidden||busy)return;
+    try{const n=await api('/api/state');setListen(n.listen,n.now);const changed=JSON.stringify(n)!==JSON.stringify(ST);ST=n;
+      if(changed&&!editing())render(true);checkPing();}
+    catch(e){if(e.status===401||e.status===403){boot();}}
+  },15000);
+}
+const editing=()=>{const a=document.activeElement;return a&&/INPUT|TEXTAREA/.test(a.tagName)||!!$('.am[contenteditable=true]');};
+function checkPing(){if(role!=='member'||!ST.ping)return;const seen=+LS.get('ping')||0;if(ST.ping.at>seen){LS.set('ping',ST.ping.at);if(seen){buzz([30,80,30,80,30]);toast(`💗 ${ST.partner.name} is thinking of you`);}}}
+$('#refreshBtn').onclick=()=>{buzz(10);boot();};
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&token)boot();});
+
+/* ===== nav ===== */
+const IC={
+ home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+ q:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14"/><path d="M12 17.5v.01"/>',
+ gift:'<rect x="3" y="8" width="18" height="13" rx="2"/><path d="M3 12h18M12 8v13"/><path d="M12 8c-2-4-6-4-6-1.5S10 8 12 8zm0 0c2-4 6-4 6-1.5S14 8 12 8z"/>',
+ chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z"/>',
+ tester:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+ members:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14a6 6 0 0 1 3 6"/>'
+};
+function tabs(){return role==='admin'?[['tester','Tester'],['q','Questions'],['gift','Gifts'],['chat','Chat'],['members','Members']]:[['home','Home'],['q','Questions'],['gift','Gift'],['chat','Chat']];}
+function renderNav(){
+  const dots={q:role==='member'?!!ST.question:(ST.drafts||[]).length>0,gift:role==='member'&&ST.gift&&ST.gift.state==='ready',members:role==='admin'&&(ST.users||[]).some(u=>u.status==='pending')};
+  $('#nav').innerHTML=tabs().map(([k,l])=>`<button data-t="${k}" class="${k===tab?'on':''}">${dots[k]&&k!==tab?'<span class="dot"></span>':''}<svg viewBox="0 0 24 24">${IC[k]}</svg>${l}</button>`).join('');
+  $$('#nav button').forEach(b=>b.onclick=()=>{if(tab===b.dataset.t)return;tab=b.dataset.t;buzz(8);render();if(tab!=='chat')api('/api/state').then(n=>{if(JSON.stringify(n)!==JSON.stringify(ST)){ST=n;if(!editing())render(true);}}).catch(()=>{});});
+}
+
+/* ===== render ===== */
+const V={};
+function render(soft){
+  if(!ST)return;
+  renderNav();
+  const fn=V[(role==='admin'?'a_':'m_')+tab]||V[(role==='admin'?'a_tester':'m_home')];
+  const main=$('#main'),top=main.scrollTop;
+  stopChat();
+  main.innerHTML=`<div class="view">${fn()}</div>`;
+  if(soft)main.scrollTop=top;else main.scrollTop=0;
+  bindCommon();(B[(role==='admin'?'a_':'m_')+tab]||(()=>{}))();
+}
+
+/* ---- shared ---- */
+function ringSVG(pct,label,sub,size=118){
+  const r=size/2-9,c=2*Math.PI*r,off=c*(1-Math.max(0,Math.min(100,pct||0))/100);
+  return `<div class="ring" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}">
+  <circle cx="${size/2}" cy="${size/2}" r="${r}" stroke="rgba(255,255,255,.25)" stroke-width="9" fill="none"/>
+  <circle cx="${size/2}" cy="${size/2}" r="${r}" stroke="#fff" stroke-width="9" fill="none" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}" style="filter:drop-shadow(0 0 6px #fff);transition:stroke-dashoffset 1.2s"/></svg>
+  <div class="v"><b>${label}</b><small>${sub}</small></div></div>`;
+}
+function idCard(){
+  const me=ST.me||{},pa=ST.partner||{name:'—'};
+  const mineKey=role==='admin'?'me':'her',theirKey=role==='admin'?'her':null;
+  const ph=(p,name,k)=>`<label class="ph" style="${p?`background-image:url('${img(p)}')`:''}">${p?'':esc((name||'?')[0].toUpperCase())}${k?`<input type="file" accept="image/*" data-photo="${k}">`:''}</label>`;
+  return `<div class="idc glass" id="idc"><div class="holo"></div>
+  <div class="top"><b>Ti</b><span>Member card<br>${role==='admin'?'Admin':'Ti · 0002'}</span></div>
+  <div class="pair">${ph(me.photo,me.name,mineKey)}<div class="hl">♥</div>${ph(pa.photo,pa.name,theirKey)}</div>
+  <div class="names"><div><b>${esc(me.name)} & ${esc(pa.name)}</b><small>Since ${fmtDate(ST.since)}</small></div><div class="goldchip"></div></div></div>`;
+}
+const heartPhoto='data:image/svg+xml;base64,'+btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><defs><radialGradient id="a" cx=".3" cy=".3" r=".9"><stop offset="0" stop-color="#ffe1ee"/><stop offset=".5" stop-color="#ff4f9a"/><stop offset="1" stop-color="#8e0f7a"/></radialGradient></defs><rect width="400" height="300" fill="url(#a)"/><path d="M200 230 C130 180 110 130 150 105 C175 90 195 105 200 120 C205 105 225 90 250 105 C290 130 270 180 200 230Z" fill="#fff" opacity=".9"/></svg>');
+function revealCard(){
+  const t=ST.today,frac=Math.min(1,t.answered/Math.max(1,t.total)),blur=Math.round((1-frac)*28),pct=Math.round(frac*100);
+  const src=ST.reveal&&ST.reveal.img?img(ST.reveal.img):heartPhoto;
+  return `<div class="glass card"><div class="row between" style="margin-bottom:12px"><div><div class="mini">TODAY'S HIDDEN PHOTO</div><div style="font-weight:800;margin-top:2px">${t.answered} / ${t.total} answered</div></div><span class="chip ${pct>=100?'ok':'wait'}">${pct>=100?'Revealed':pct+'%'}</span></div>
+  <div class="reveal"><div class="img" style="background-image:url('${src}');filter:blur(${blur}px)"></div></div>
+  <div class="bar" style="margin-top:12px"><i style="width:${pct}%"></i></div></div>`;
+}
+function spotifyEmbed(u){const m=String(u||'').match(/open\.spotify\.com\/(?:intl-[a-z]+\/)?(track|album|playlist|episode)\/([A-Za-z0-9]+)/);return m?`https://open.spotify.com/embed/${m[1]}/${m[2]}`:null;}
+function musicCard(){
+  return `<button class="glass card row" style="width:100%;text-align:left" onclick="document.getElementById('mbOpen').click()"><div class="disc ${L&&joined&&!aud.paused?'':'paused'}"></div><div style="flex:1;min-width:0"><div class="mini">LISTEN TOGETHER</div><div style="font-weight:800;margin-top:3px">${L?esc(L.title):role==='admin'?'Play a song on both phones':'Nothing playing right now'}</div></div><span class="ib">🎧</span></button>`;
+}
+function oldMusicCard(){
+  const s=ST.song||{},e=spotifyEmbed(s.url);
+  if(!e&&role==='member')return '';
+  return `<div class="glass card"><div class="row"><div class="disc"></div><div style="flex:1;min-width:0"><div class="mini">LISTENING TOGETHER</div><div style="font-weight:800;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(s.title||'Our song')}</div></div></div>
+  ${e?`<iframe class="sp" src="${e}" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`:'<div class="mini" style="margin-top:10px">Add a Spotify link in Members → Settings.</div>'}</div>`;
+}
+async function compress(file,max=1280){
+  return new Promise((res,rej)=>{const r=new FileReader();r.onerror=rej;r.onload=()=>{const im=new Image();im.onerror=rej;im.onload=()=>{const s=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.82));};im.src=r.result;};r.readAsDataURL(file);});
+}
+async function withBtn(btn,fn){if(btn){btn.disabled=true;btn.dataset.l=btn.innerHTML;btn.innerHTML='<span class="spin"></span>';}busy=true;try{return await fn();}finally{busy=false;if(btn&&document.body.contains(btn)){btn.disabled=false;btn.innerHTML=btn.dataset.l;}}}
+async function reload(soft=true){ST=await api('/api/state');render(soft);}
+function bindCommon(){
+  $$('[data-photo]').forEach(inp=>inp.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{toast('Uploading…');const d=await compress(f,700);await api('/api/profile-photo',{img:d,who:inp.dataset.photo});await reload();toast('Saved 💗');}catch(er){toast('Upload failed');}});
+  const idc=$('#idc');if(idc){idc.onpointermove=e=>{const r=idc.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;idc.style.transform=`perspective(700px) rotateY(${x*14}deg) rotateX(${-y*14}deg)`;};idc.onpointerleave=()=>idc.style.transform='';}
+  $$('[data-go]').forEach(b=>b.onclick=()=>{tab=b.dataset.go;render();});
+}
+const B={};
+
+/* ================= MEMBER (her) ================= */
+V.m_home=()=>{
+  const t=ST.today,left=Math.max(0,t.total-t.answered),pct=Math.round(t.answered/Math.max(1,t.total)*100);
+  return `<div class="h">Hi, <em>${esc(ST.me.name)}</em></div><div class="sub">Every answer brings you closer to today's surprise.</div>
+  <div class="eyebrow">Our card</div>${idCard()}
+  <div class="eyebrow">Today</div>
+  <div class="glass card row">${ringSVG(pct,t.answered+'/'+t.total,'today')}<div><div style="font-family:Unbounded;font-weight:500;font-size:16px">${left?left+' question'+(left>1?'s':'')+' left':'All done 💗'}</div><div class="sub" style="margin:6px 0 12px">${ST.question?'A new question is waiting.':left?'No new question yet.':'See you tomorrow.'}</div>${ST.question?'<button class="btn solid sm" data-go="q">Answer now</button>':''}</div></div>
+  ${revealCard()}${musicCard()}
+  <button class="glass card row" id="thinkBtn" style="width:100%;text-align:left"><div class="hl" style="margin:0;width:44px;height:44px;font-size:19px">♥</div><div><div style="font-weight:800">Thinking of you</div><div class="mini">Tap to send ${esc(ST.partner.name)} a heartbeat</div></div></button>
+  <button class="btn sm block" style="margin-top:4px" onclick="TiReplay()">▶ Replay our intro</button>`;
+};
+B.m_home=()=>{$('#thinkBtn').onclick=async()=>{buzz([30,60,30]);try{await api('/api/ping',{});toast('💗 Sent');}catch(e){toast('Not sent — offline');}};};
+
+V.m_q=()=>{
+  const t=ST.today,q=ST.question;
+  if(!q)return `<div class="h">${t.answered>=t.total?'All <em>answered.</em>':'No question <em>yet.</em>'}</div><div class="sub">${t.answered>=t.total?'Come back tomorrow 💗':'A new one will appear here soon.'}</div><div style="height:14px"></div>${revealCard()}`;
+  return `<div class="h">Question <em>${t.answered+1}</em> of ${t.total}</div><div class="sub">Answer from your heart.</div>
+  <div class="eyebrow">For you</div>
+  <div class="glass card"><div class="q">${esc(q.zu)}</div>
+  <textarea id="ansBox" placeholder="Bhala impendulo yakho…" style="margin-top:16px"></textarea>
+  <button class="btn solid block" style="margin-top:12px" id="sendAns">Send answer</button></div>
+  <div class="bar"><i style="width:${t.answered/Math.max(1,t.total)*100}%"></i></div>`;
+};
+B.m_q=()=>{const b=$('#sendAns');if(!b)return;const key='draft.'+ST.question.id;$('#ansBox').value=LS.get(key)||'';$('#ansBox').oninput=e=>LS.set(key,e.target.value);
+  b.onclick=()=>withBtn(b,async()=>{const v=$('#ansBox').value.trim();if(!v){toast('Write something first');return;}
+    try{await api('/api/answer',{id:ST.question.id,text:v});LS.del(key);buzz(20);toast('Sent 💗 the photo is getting clearer');await reload(false);}catch(e){toast(e.status===429?'That was the last one for today':'Not sent — try again');}});};
+
+V.m_gift=()=>{
+  const g=ST.gift||{state:'none'};
+  if(g.state==='none')return `<div class="h">Your <em>gift.</em></div><div class="sub">Nothing here yet… something might be on its way 💗</div>`;
+  const locked=g.state==='locked';
+  return `<div class="h">Your <em>gift.</em></div><div class="sub">${locked?'Sealed with love. Opens soon.':g.state==='opened'?'Opened 💗':'Tap the box to open it.'}</div>
+  <div class="glass card"><div class="stage" id="stage">
+  ${g.state==='opened'?`<div class="gopen on" style="background-image:url('${img(g.img)}')"><p>${esc(g.msg)}</p></div>`:
+  `<div class="box" id="box"><div class="face"></div><div class="rib"></div><div class="rib hz"></div><div class="bow">🎀</div>${locked?'<div class="lk">🔒</div>':''}</div><div class="gopen" id="gOpen"><p>${esc(g.msg)}</p></div>`}
+  </div>${locked?`<div class="count" id="cd"></div>${g.needLeft?`<div class="sub" style="text-align:center;margin-top:12px">…and ${g.needLeft} more answer${g.needLeft>1?'s':''} 💗</div>`:''}`:''}</div>`;
+};
+B.m_gift=()=>{
+  const g=ST.gift;if(!g)return;
+  if(g.state==='locked'){const tick=()=>{const el=$('#cd');if(!el)return clearInterval(B.cdT);let l=Math.max(0,g.unlockAt-Date.now());const d=Math.floor(l/864e5),h=Math.floor(l%864e5/36e5),m=Math.floor(l%36e5/6e4),s=Math.floor(l%6e4/1e3);el.innerHTML=[[d,'DAYS'],[h,'HRS'],[m,'MIN'],[s,'SEC']].map(([v,k])=>`<div><b>${v}</b><small>${k}</small></div>`).join('');if(l<=0&&!g.needLeft){clearInterval(B.cdT);reload();}};clearInterval(B.cdT);tick();B.cdT=setInterval(tick,1000);}
+  const box=$('#box');if(!box)return;
+  box.onclick=async()=>{
+    if(g.state!=='ready'){buzz([10,40,10]);box.animate([{transform:'translateX(0)'},{transform:'translateX(-9px)'},{transform:'translateX(9px)'},{transform:'translateX(0)'}],{duration:320});toast('🔒 Not yet');return;}
+    let d;try{d=await api('/api/gift/open',{});}catch(e){toast('Not yet');return;}
+    const go=$('#gOpen');go.style.backgroundImage=`url('${img(d.img)}')`;
+    const pre=new Image();pre.src=img(d.img);
+    box.style.animation='none';box.style.transition='transform .3s,opacity .3s';box.style.transform='scale(1.15)';buzz([20,40,80]);
+    setTimeout(()=>{box.style.opacity='0';const stage=$('#stage');
+      for(let i=0;i<16;i++){const s=document.createElement('div');s.className='shard';const pts=[0,1,2].map(()=>`${Math.random()*100|0}% ${Math.random()*100|0}%`);s.style.clipPath=`polygon(${pts.join(',')})`;stage.appendChild(s);
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{const a=Math.random()*Math.PI*2,dd=160+Math.random()*170;s.style.transform=`translate(${Math.cos(a)*dd}px,${Math.sin(a)*dd}px) rotate(${(Math.random()-.5)*720}deg) scale(.4)`;s.style.opacity='0';}));setTimeout(()=>s.remove(),1300);}
+      go.classList.add('on');ST.gift.state='opened';ST.gift.img=d.img;},280);
+  };
+};
+
+/* ================= CHAT (both) ================= */
+function chatView(){
+  return `<div class="row between" style="margin:10px 4px 4px"><div class="h" style="margin:0">Just <em>us.</em></div>${role==='admin'?'<button class="btn sm" id="pingHer">💗 Heartbeat</button>':''}</div>
+  <div class="sub">${role==='admin'?'You write Amharic — she reads isiZulu.':'Messages are translated automatically.'}</div>
+  <div class="glass card" style="margin-top:14px;margin-bottom:70px"><div class="msgs" id="msgs"><div class="empty"><span class="spin"></span></div></div></div>
+  <div class="composer glass"><input type="text" id="chatIn" placeholder="${role==='admin'?'መልእክት…':'Message…'}" maxlength="2000" autocomplete="off"><button class="btn solid sm" id="chatSend">Send</button></div>`;
+}
+V.m_chat=chatView;V.a_chat=chatView;
+function msgHTML(m){
+  const mine=(role==='admin')===(m.from==='me');
+  const main=mine?m.text:(m.tr||m.text),orig=!mine&&m.tr&&m.tr!==m.text?m.text:'';
+  return `<div class="m ${mine?'mine':'theirs'}">${esc(main)}${orig?`<span class="orig">${esc(orig)}</span>`:''}<small>${fmtTime(m.at)}</small></div>`;
+}
+function drawMsgs(){const el=$('#msgs');if(!el)return;el.innerHTML=chatMsgs.length?chatMsgs.map(msgHTML).join(''):'<div class="empty">Say hi 💗</div>';const main=$('#main');main.scrollTop=main.scrollHeight;}
+let chatLoaded=false;
+async function pullChat(){try{const d=await api('/api/chat?after='+lastChatAt);if(d.messages.length){chatMsgs=chatMsgs.concat(d.messages).slice(-400);lastChatAt=chatMsgs[chatMsgs.length-1].at;drawMsgs();}else if(!chatLoaded)drawMsgs();chatLoaded=true;}catch(e){}}
+function stopChat(){clearInterval(chatT);chatT=null;}
+function bindChat(){
+  if(chatLoaded)drawMsgs();pullChat();chatT=setInterval(()=>{if(!document.hidden)pullChat();},4000);
+  const send=async()=>{const i=$('#chatIn'),v=i.value.trim();if(!v)return;i.value='';
+    chatMsgs.push({id:'tmp',from:role==='admin'?'me':'her',text:v,at:Date.now()});drawMsgs();
+    try{const d=await api('/api/chat',{text:v});chatMsgs=chatMsgs.filter(m=>m.id!=='tmp');chatMsgs.push(d.msg);lastChatAt=Math.max(lastChatAt,d.msg.at);drawMsgs();}
+    catch(e){chatMsgs=chatMsgs.filter(m=>m.id!=='tmp');drawMsgs();i.value=v;toast('Not sent');}};
+  $('#chatSend').onclick=send;$('#chatIn').onkeydown=e=>{if(e.key==='Enter')send();};
+  const p=$('#pingHer');if(p)p.onclick=async()=>{buzz([30,60,30]);try{await api('/api/ping',{});toast('💗 Sent');}catch(e){toast('Not sent');}};
+}
+B.m_chat=bindChat;B.a_chat=bindChat;
+
+/* ================= ADMIN ================= */
+const scoreColor=v=>v==null?'':v>=70?'background:rgba(138,255,209,.4)':v>=50?'background:rgba(255,224,138,.45)':'background:rgba(255,60,100,.5)';
+V.a_tester=()=>{
+  const t=ST.today,w=ST.week,tr=ST.trend,pts=tr.map((p,i)=>p.v==null?null:[i/(tr.length-1)*300,80-p.v*.76]).filter(Boolean);
+  const line=pts.map(p=>p.join(',')).join(' ');
+  return `<div class="h">The <em>Tester.</em></div><div class="sub">Private — only you can open this.</div>
+  <div class="eyebrow">Today</div>
+  <div class="glass card row">${ringSVG(t.score??0,t.score==null?'—':t.score+'%','score',128)}<div style="flex:1">
+    <div class="mini">ANSWERED</div><div class="k">${t.answered}<span style="font-size:15px;color:var(--dim)">/${t.total}</span></div>
+    <div class="mini" style="margin-top:8px">7‑DAY AVERAGE</div><div style="font-family:Unbounded;font-weight:500">${w.avg==null?'—':w.avg+'%'}</div></div></div>
+  <div class="glass card"><div class="mini">BY CATEGORY · 7 DAYS</div>${w.cats.map(c=>`<div style="margin:12px 0"><div class="row between" style="font-size:13px;margin-bottom:6px"><span>${c.cat} <span class="mini">· ${c.n}</span></span><b>${c.v==null?'—':c.v+'%'}</b></div><div class="bar"><i style="width:${c.v||0}%"></i></div></div>`).join('')}</div>
+  <div class="glass card"><div class="row between"><div class="mini">LAST 7 DAYS</div><div class="mini">${tr[0].day.slice(5)} → ${tr[6].day.slice(5)}</div></div>
+  ${pts.length>1?`<svg class="spark" viewBox="0 0 300 84" preserveAspectRatio="none"><polyline points="${line}" fill="none" stroke="#fff" stroke-width="2.5" stroke-linejoin="round" style="filter:drop-shadow(0 0 4px #fff)"/>${pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="#fff"/>`).join('')}</svg>`:'<div class="empty">Scores appear after her first answers.</div>'}</div>
+  <div class="glass card"><div class="row between"><div class="mini">GEMINI · ትንታኔ</div><button class="btn sm" id="anaBtn">✨ Analyze</button></div>
+  ${ST.analysis&&ST.analysis.text?`<p class="am note" style="margin-top:12px">${esc(ST.analysis.text)}</p><div class="mini" style="margin-top:8px">${fmtDate(ST.analysis.at)} · ${ST.analysis.n} answers</div>`:'<p class="am note" style="margin-top:12px;color:var(--mute)">የ7 ቀን መልሶቿን አይቶ በአማርኛ ማጠቃለያ ይሰጥሃል።</p>'}
+  <p class="am note" style="margin-top:10px;font-size:12px;color:var(--mute)">⚠️ ውጤቱ የAI ግምት እንጂ እርግጠኛ መልስ አይደለም። የብዙ ቀናት አዝማሚያውን ተመልከት።</p></div>
+  ${ST.gemini?'':'<div class="glass card"><b>⚠️ GEMINI_KEY is not set on the Worker.</b></div>'}`;
+};
+B.a_tester=()=>{const b=$('#anaBtn');b.onclick=()=>withBtn(b,async()=>{try{await api('/api/admin/analyze',{});await reload();}catch(e){toast(e.message==='no answers yet'?'No answers yet':'Gemini busy — try again');}});};
+
+V.a_q=()=>{
+  const c=ST.cfg;
+  return `<div class="h">Questions</div><div class="sub">Gemini writes in Amharic → she receives isiZulu.</div>
+  <div class="glass card"><div class="row between"><div class="mini">QUESTIONS PER DAY</div><b class="k" id="dcV" style="font-size:22px">${c.dailyCount}</b></div>
+  <input type="range" min="1" max="100" value="${c.dailyCount}" id="dc" style="margin-top:14px">
+  <div class="seg" style="margin-top:16px"><button data-qm="manual" class="${c.qMode==='manual'?'on':''}">Manual approve</button><button data-qm="auto" class="${c.qMode==='auto'?'on':''}">Auto send</button></div>
+  <button class="btn solid block" style="margin-top:14px" id="genQ">✨ Generate 5 with Gemini</button></div>
+  <div class="eyebrow">Waiting for your approval · ${ST.drafts.length}</div>
+  ${ST.drafts.map(q=>`<div class="glass qi" data-id="${q.id}"><span class="chip">${q.cat}</span>
+    <div class="am" style="margin-top:10px">${esc(q.am)}</div><div class="zu">isiZulu: ${esc(q.zu)}</div>${q.why?`<div class="why am">💡 ${esc(q.why)}</div>`:''}
+    <div class="acts"><button class="btn ok sm" data-a="approve">✓ Approve</button><button class="btn sm" data-a="edit">✎ Edit</button><button class="btn bad sm" data-a="reject">✕</button></div></div>`).join('')||'<div class="glass card empty">Nothing waiting. Tap Generate.</div>'}
+  <div class="eyebrow">Sent to her · ${ST.queue.length}</div>
+  ${ST.queue.map(q=>`<div class="glass qi" data-id="${q.id}"><div class="row between"><span class="chip">${q.cat}</span><span class="chip ${q.seenAt?'ok':'wait'}">${q.seenAt?'seen':'not seen'}</span></div><div class="am" style="margin-top:10px">${esc(q.am)}</div><div class="acts"><button class="btn sm" data-a="delete">Withdraw</button></div></div>`).join('')||'<div class="glass card empty">None in her queue.</div>'}
+  <div class="eyebrow">Her answers</div>
+  ${ST.answered.map(a=>`<div class="glass qi"><div class="row between"><span class="chip">${a.cat}</span>${typeof a.score==='number'?`<span class="score" style="${scoreColor(a.score)}">${a.score}%</span>`:'<span class="mini">scoring…</span>'}</div>
+    <div class="am" style="margin-top:10px">${esc(a.am)}</div>
+    <div class="ans"><div class="am" style="font-size:15px">${esc(a.ansAm||'…')}</div><div class="zu">She wrote: ${esc(a.ansZu)}</div>${a.scoreWhy?`<div class="why am">📊 ${esc(a.scoreWhy)}</div>`:''}</div>
+    <div class="mini" style="margin-top:8px">${fmtDate(a.answeredAt)} · ${fmtTime(a.answeredAt)}${a.seenAt?` · answered in ${Math.max(1,Math.round((a.answeredAt-a.seenAt)/6e4))} min`:''}</div></div>`).join('')||'<div class="glass card empty">No answers yet.</div>'}`;
+};
+B.a_q=()=>{
+  const dc=$('#dc');let t;dc.oninput=()=>{$('#dcV').textContent=dc.value;clearTimeout(t);t=setTimeout(async()=>{try{await api('/api/admin/cfg',{dailyCount:+dc.value});ST.cfg.dailyCount=+dc.value;ST.today.total=+dc.value;toast('Saved: '+dc.value+' per day');}catch(e){toast('Not saved');}},500);};
+  $$('[data-qm]').forEach(b=>b.onclick=async()=>{try{await api('/api/admin/cfg',{qMode:b.dataset.qm});await reload();toast(b.dataset.qm==='auto'?'Auto: Gemini sends to her by itself':'Manual: you approve each one');}catch(e){toast('Not saved');}});
+  const g=$('#genQ');g.onclick=()=>withBtn(g,async()=>{try{const d=await api('/api/admin/generate',{n:5});await reload();toast(`✨ ${d.added} new questions`);}catch(e){toast('Gemini busy — try again');}});
+  $$('.qi [data-a]').forEach(b=>b.onclick=async()=>{
+    const card=b.closest('.qi'),id=card.dataset.id,a=b.dataset.a;
+    if(a==='edit'){const el=card.querySelector('.am');if(el.isContentEditable){await withBtn(b,async()=>{try{await api(`/api/admin/q/${id}/edit`,{am:el.textContent.trim()});await reload();toast('Saved & re-translated');}catch(e){toast('Not saved');}});return;}
+      el.contentEditable=true;el.style.outline='1.5px dashed #fff';el.style.borderRadius='10px';el.style.padding='6px';el.focus();b.innerHTML='💾 Save';return;}
+    await withBtn(b,async()=>{try{await api(`/api/admin/q/${id}/${a}`,{});await reload();toast(a==='approve'?'✓ Sent to her in isiZulu':a==='delete'?'Withdrawn':'Rejected');}catch(e){toast('Failed');}});
+  });
+};
+
+V.a_gift=()=>{
+  const g=ST.gift||{state:'none'},rv=ST.reveal&&ST.reveal.img;
+  let cur='';
+  if(g.state!=='none'){const left=g.unlockAt-Date.now();cur=`<div class="glass card"><div class="row between"><div class="mini">CURRENT GIFT</div><span class="chip ${g.state==='opened'?'ok':g.state==='ready'?'wait':''}">${g.state}</span></div>
+    <div style="font-weight:800;margin-top:8px">"${esc(g.msg)}"</div>
+    <div class="mini" style="margin-top:6px">${g.state==='locked'?(left>0?`Opens ${fmtDate(g.unlockAt)} ${fmtTime(g.unlockAt)}`:'Time reached')+(g.needLeft?` · ${g.needLeft} more answers needed`:''):g.state==='opened'?'Opened '+fmtDate(g.openedAt):'Ready — she can open it now'}</div>
+    <button class="btn bad sm" style="margin-top:12px" id="gCancel">Remove</button></div>`;}
+  return `<div class="h">Gifts</div><div class="sub">Daily photo reveal, and sealed surprises.</div>
+  <div class="eyebrow">Today's hidden photo</div>
+  <div class="glass card"><div class="reveal" style="height:180px"><div class="img" style="background-image:url('${rv?img(rv):heartPhoto}')"></div>
+  <label class="btn sm" style="position:absolute;right:12px;bottom:12px">📷 ${rv?'Change':'Choose'}<input type="file" accept="image/*" id="rvIn" style="display:none"></label></div>
+  <div class="mini" style="margin-top:10px">It un-blurs as she answers today's ${ST.cfg.dailyCount} questions.</div></div>
+  <div class="eyebrow">Gift</div>${cur}
+  <div class="glass card"><div class="reveal" style="height:170px"><div class="img" id="gPrev" style="background-image:url('${heartPhoto}')"></div>
+  <label class="btn sm" style="position:absolute;right:12px;bottom:12px">📷 Photo<input type="file" accept="image/*" id="gIn" style="display:none"></label></div>
+  <input type="text" id="gMsg" maxlength="200" placeholder="Message on the gift" style="margin-top:12px">
+  <div class="seg" style="margin-top:14px"><button data-gm="now" class="on">Send now</button><button data-gm="lock">Lock timer</button></div>
+  <div id="lockOpts" style="display:none">
+   <div class="row between" style="margin-top:16px"><span class="mini">OPENS AFTER</span><b id="gdV">3 days</b></div><input type="range" min="0" max="30" value="3" id="gd" style="margin-top:10px">
+   <div class="row between" style="margin-top:16px"><span class="mini">AND AFTER HER ANSWERS</span><b id="gaV">10</b></div><input type="range" min="0" max="100" value="10" id="ga" style="margin-top:10px"></div>
+  <button class="btn solid block" style="margin-top:16px" id="gSend">🎁 Send gift now</button></div>`;
+};
+B.a_gift=()=>{
+  $('#rvIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{toast('Uploading…');await api('/api/admin/reveal',{img:await compress(f)});await reload();toast('Hidden photo set');}catch(er){toast('Upload failed');}};
+  let gImg=null,mode='now';
+  $('#gIn').onchange=async e=>{const f=e.target.files[0];if(!f)return;gImg=await compress(f);$('#gPrev').style.backgroundImage=`url('${gImg}')`;};
+  const upd=()=>{$('#lockOpts').style.display=mode==='lock'?'block':'none';$('#gSend').textContent=mode==='now'?'🎁 Send gift now':'🔒 Seal gift';$$('[data-gm]').forEach(b=>b.classList.toggle('on',b.dataset.gm===mode));};
+  $$('[data-gm]').forEach(b=>b.onclick=()=>{mode=b.dataset.gm;upd();});
+  $('#gd').oninput=e=>$('#gdV').textContent=e.target.value+' days';$('#ga').oninput=e=>$('#gaV').textContent=e.target.value;
+  const s=$('#gSend');s.onclick=()=>withBtn(s,async()=>{if(!gImg){toast('Choose a photo first');return;}
+    try{await api('/api/admin/gift',{img:gImg,msg:$('#gMsg').value,mode,days:+$('#gd').value,needAnswers:+$('#ga').value});buzz(25);await reload();toast(mode==='now'?'🎁 Delivered':'🔒 Sealed');}catch(e){toast('Failed: '+e.message);}});
+  const c=$('#gCancel');if(c)c.onclick=()=>withBtn(c,async()=>{await api('/api/admin/gift',{cancel:true});await reload();toast('Removed');});
+};
+
+V.a_members=()=>{
+  const appr=ST.users.filter(u=>u.status==='approved').length;
+  return `<div class="h">Members</div><div class="sub">Only you and her. Anyone else stays locked out.</div>
+  <div class="glass card row between"><div><div class="mini">MEMBER</div><div class="k">${appr}<span style="font-size:15px;color:var(--dim)">/1</span></div></div><span class="chip ${appr?'ok':'wait'}">${appr?'Locked · full':'Waiting for her'}</span></div>
+  ${ST.users.map(u=>`<div class="glass dev ${u.status}" data-id="${u.id}"><div class="row"><div class="ava">${esc((u.name||'?')[0].toUpperCase())}</div><div style="flex:1;min-width:0">
+    <div class="row between"><b>${esc(u.name)}</b><span class="chip ${u.status==='approved'?'ok':u.status==='pending'?'wait':'bad'}">${u.status}</span></div>
+    <div class="mini" style="margin-top:4px">📱 ${esc(u.model)} · ${esc(u.os)}</div><div class="mini">Joined ${fmtDate(u.date)}${u.lastSeen?' · seen '+fmtDate(u.lastSeen)+' '+fmtTime(u.lastSeen):''}</div></div></div>
+    <div class="acts">${u.status!=='approved'?'<button class="btn ok sm" data-u="approve">Approve</button>':''}${u.status!=='banned'?'<button class="btn bad sm" data-u="ban">Ban</button>':''}<button class="btn sm" data-u="delete">Delete</button></div></div>`).join('')||'<div class="glass card empty">No one has registered yet.</div>'}
+  <div class="eyebrow">Your card</div>${idCard()}
+  <div class="eyebrow">Settings</div>
+  <div class="glass card"><div class="mini">YOUR NAME</div><div class="row" style="margin-top:8px"><input type="text" id="meName" value="${esc(ST.cfg.meName)}" maxlength="40"><button class="btn sm" id="meSave">Save</button></div></div>
+  ${musicCard()}
+  <div class="glass card"><div class="row between"><div><div class="mini">TELEGRAM ALERTS</div><div style="font-weight:800;margin-top:4px">${ST.tg?'Connected ✓':ST.tgToken?'Not linked yet':'TG_TOKEN not set'}</div></div>${ST.tgToken?'<button class="btn sm" id="tgBtn">Connect</button>':''}</div>
+  <div class="mini" style="margin-top:8px">After tapping Connect, open your bot in Telegram and send /start within 15 minutes.</div></div>
+  <div class="glass card"><div class="mini">ADMIN DEVICES</div>${ST.adminDevices.map(d=>`<div style="margin-top:8px">📱 ${esc(d.model)} <span class="mini">· ${fmtDate(d.date)}</span></div>`).join('')}
+  <div class="acts"><button class="btn sm" onclick="TiReplay()">▶ Replay intro</button><button class="btn sm" id="lockMe">🔒 Lock admin on this phone</button><button class="btn bad sm" id="lockAll">Sign out all</button></div></div>`;
+};
+B.a_members=()=>{
+  $$('.dev [data-u]').forEach(b=>b.onclick=async()=>{const id=b.closest('.dev').dataset.id,a=b.dataset.u;await withBtn(b,async()=>{try{await api(`/api/admin/user/${id}/${a}`,{});await reload();toast(a==='approve'?'Approved 💗':a==='ban'?'⛔ Banned':'Deleted');}catch(e){toast(e.message==='full'?'Already full — ban the other first':'Failed');}});});
+  $('#meSave').onclick=e=>withBtn(e.currentTarget,async()=>{await api('/api/admin/cfg',{meName:$('#meName').value});await reload();toast('Saved');});
+  const tg=$('#tgBtn');if(tg)tg.onclick=()=>withBtn(tg,async()=>{try{const d=await api('/api/admin/tg-setup',{});toast(d.ok?(d.needStart?'Now send /start to your bot':'Telegram connected ✓'):'Failed: '+d.description);}catch(e){toast('Failed: '+e.message);}});
+  $('#lockMe').onclick=()=>{LS.del('token');LS.del('role');token=null;role=null;tab=null;ST=null;toast('Locked');showWelcome();};
+  $('#lockAll').onclick=e=>withBtn(e.currentTarget,async()=>{await api('/api/admin/logout-devices',{});LS.del('token');LS.del('role');token=null;role=null;tab=null;showWelcome();});
+};
+
+
+
+/* ===== listen together (synced music) ===== */
+const aud=$('#aud');let L=null,offset=0,joined=false,lastV=0,reactSeen=Date.now(),lpollT=null;
+try{aud.volume=+(LS.get('vol')??0.8);}catch(e){}
+const srvNow=()=>Date.now()+offset;
+const expected=()=>!L?0:L.playing?L.pos+(srvNow()-L.anchor)/1000:L.pos;
+const audUrl=id=>`${API}/api/audio/${id}?t=${encodeURIComponent(token)}`;
+const fmtS=x=>{x=Math.max(0,x|0);return (x/60|0)+':'+String(x%60).padStart(2,'0');};
+function setListen(l,now){if(now)offset=now-Date.now();const prev=L;L=l||null;
+  document.body.classList.toggle('listening',!!L);
+  if(!L){if(!aud.paused)aud.pause();aud.removeAttribute('src');joined=false;}
+  else if(!prev||prev.v!==L.v||prev.id!==L.id)sync(true);
+  (L&&L.reacts||[]).forEach(r=>{if(r.at>reactSeen){reactSeen=r.at;if((role==='admin')!==(r.from==='me'))flyEmoji(r.e);}});
+  drawBar();if($('#msheet').classList.contains('on'))drawSheet();}
+function sync(force){
+  if(!L||L.kind!=='audio'||!joined)return;
+  const url=audUrl(L.id);if(aud.dataset.id!==L.id){aud.src=url;aud.dataset.id=L.id;}
+  const e=expected();
+  if(L.dur&&e>L.dur+1){aud.pause();return;}
+  if(L.playing){if(force||Math.abs(aud.currentTime-e)>1.2){try{aud.currentTime=e;}catch(er){}}if(aud.paused)aud.play().catch(()=>{joined=false;drawBar();});}
+  else{aud.pause();if(Math.abs(aud.currentTime-e)>.5)try{aud.currentTime=e;}catch(er){}}
+  if('mediaSession' in navigator)try{navigator.mediaSession.metadata=new MediaMetadata({title:L.title,artist:'Ti · together',artwork:[{src:'icon-512.png',sizes:'512x512',type:'image/png'}]});}catch(er){}
+}
+function join(){joined=true;sync(true);drawBar();}
+aud.addEventListener('loadedmetadata',()=>{if(L&&role==='admin'&&!L.dur&&aud.duration&&isFinite(aud.duration)){L.dur=aud.duration;api(`/api/admin/audio/${L.id}/meta`,{dur:aud.duration}).catch(()=>{});}sync(true);});
+aud.addEventListener('play',drawBar);aud.addEventListener('pause',drawBar);
+async function pollListen(){if(!token||document.hidden)return;try{const d=await api('/api/listen');setListen(d.listen,d.now);}catch(e){}}
+function startListenPoll(){clearInterval(lpollT);lpollT=setInterval(()=>{pollListen();if(L&&joined)sync(false);},L?4000:8000);}
+setInterval(()=>{if(L){drawBar(true);if(joined&&L.playing)sync(false);}},1000);
+function drawBar(light){
+  if(!L)return;const e=expected(),d=L.dur||(isFinite(aud.duration)?aud.duration:0);
+  $('#mbProg').style.width=d?Math.min(100,e/d*100)+'%':'0%';
+  if(light)return;
+  $('#mbTitle').textContent=L.title;
+  const spot=L.kind==='spotify';
+  $('#mbSub').textContent=spot?'Spotify · open to play':L.playing?(joined?'Playing for both of you':'Tap ▶ to listen with '+((ST&&ST.partner&&ST.partner.name)||'them')):'Paused';
+  const live=joined&&!aud.paused;
+  $('#mbDisc').classList.toggle('paused',!live);
+  $('#mbMain').textContent=spot?'↗':(!joined?'▶':role==='admin'?(L.playing?'⏸':'▶'):(aud.muted?'🔇':'🔊'));
+}
+$('#mbMain').onclick=async()=>{buzz(10);if(!L)return;if(L.kind==='spotify'){openSheet();return;}
+  if(!joined){join();return;}
+  if(role==='admin'){try{const d=await api('/api/listen',{action:L.playing?'pause':'resume'});setListen(d.listen,d.now);}catch(e){toast('Failed');}}
+  else{aud.muted=!aud.muted;drawBar();toast(aud.muted?'Muted on your phone':'Sound on');}};
+$('#mbHeart').onclick=()=>react('❤️');$('#mbOpen').onclick=openSheet;
+async function react(e){buzz(15);flyEmoji(e);try{const d=await api('/api/listen',{action:'react',e});reactSeen=Date.now()+5e3;setListen(d.listen,d.now);}catch(er){}}
+function flyEmoji(e){for(let i=0;i<5;i++){const f=document.createElement('div');f.className='fly';f.textContent=e;f.style.left=(15+Math.random()*70)+'vw';f.style.animationDelay=(i*.18)+'s';document.body.appendChild(f);setTimeout(()=>f.remove(),3200);}}
+function openSheet(){$('#msheet').classList.add('on');drawSheet();}
+$('#msheet').addEventListener('click',e=>{if(e.target.id==='msheet')$('#msheet').classList.remove('on');});
+function drawSheet(){
+  const adm=role==='admin',songs=(ST&&ST.songs)||[],e=expected(),d=L&&(L.dur||(isFinite(aud.duration)?aud.duration:0));
+  const spot=L&&L.kind==='spotify'?spotifyEmbed(L.url):null;
+  $('#msBody').innerHTML=`<div class="grab"></div>
+  ${L?`<div class="bigdisc ${joined&&!aud.paused?'':'paused'}"></div>
+    <div style="text-align:center;font-family:Unbounded;font-weight:500;font-size:18px">${esc(L.title)}</div>
+    <div class="mini" style="text-align:center;margin-top:4px">${spot?'Spotify':L.playing?'Playing for both of you':'Paused'}${d?` · ${fmtS(e)} / ${fmtS(d)}`:''}</div>
+    ${spot?`<iframe class="sp" src="${spot}" allow="autoplay; encrypted-media" loading="lazy" style="height:152px"></iframe><div class="mini" style="margin-top:6px">Spotify plays full songs only when signed in to Spotify; otherwise a 30-second preview.</div>`:
+    `<div class="bar" id="seekBar" style="margin-top:14px;height:9px;${adm?'cursor:pointer':''}"><i style="width:${d?Math.min(100,e/d*100):0}%"></i></div>
+    <div class="ctrls">${!joined?'<button class="ib solid" id="sJoin">▶</button>':adm?`<button class="ib" id="sRestart">⏮</button><button class="ib solid" id="sPP">${L.playing?'⏸':'▶'}</button><button class="ib" id="sStop">⏹</button>`:`<button class="ib solid" id="sMute">${aud.muted?'🔇':'🔊'}</button>`}</div>
+    <div class="mini" style="margin-top:12px">YOUR VOLUME · only on this phone</div>
+    <div class="row" style="margin-top:8px"><span>🔈</span><input type="range" min="0" max="100" value="${Math.round(aud.volume*100)}" id="sVol"><span>🔊</span></div>`}
+    <div class="reacts">${['❤️','😍','🥹','🔥','😘'].map(x=>`<button data-r="${x}">${x}</button>`).join('')}</div>`
+  :`<div class="bigdisc paused"></div><div style="text-align:center;font-family:Unbounded;font-weight:500">Nothing playing</div><div class="mini" style="text-align:center;margin-top:4px">${adm?'Pick a song below — it plays on both phones.':'When '+esc((ST.partner||{}).name||'he')+' plays a song, it appears here.'}</div>`}
+  ${adm?`<div class="eyebrow">Our songs · ${songs.length}</div>
+    <label class="btn block" style="margin-bottom:8px">＋ Upload song (MP3, up to 20 MB)<input type="file" accept="audio/*" id="sUp" style="display:none"></label>
+    ${songs.slice().reverse().map(x=>`<div class="song" data-id="${x.id}"><div class="t"><b>${esc(x.title)}</b><span class="mini">${(x.size/1048576).toFixed(1)} MB${x.dur?' · '+fmtS(x.dur):''}</span></div><button class="btn ok sm" data-p="play">▶ Both</button><button class="btn sm" data-p="del">🗑</button></div>`).join('')||'<div class="mini">No songs yet.</div>'}
+    <div class="eyebrow">Or a Spotify link</div>
+    <input type="url" id="sSpot" placeholder="https://open.spotify.com/track/…"><button class="btn sm" style="margin-top:8px" id="sSpotGo">Share with her</button>`:''}`;
+  const q=x=>$('#msBody '+x);
+  if(q('#sJoin'))q('#sJoin').onclick=()=>{join();drawSheet();};
+  if(q('#sMute'))q('#sMute').onclick=()=>{aud.muted=!aud.muted;drawSheet();drawBar();};
+  if(q('#sVol'))q('#sVol').oninput=e=>{aud.volume=e.target.value/100;aud.muted=false;LS.set('vol',aud.volume);};
+  $$('#msBody [data-r]').forEach(b=>b.onclick=()=>react(b.dataset.r));
+  const act=async(a,extra={})=>{try{const d=await api('/api/listen',{action:a,...extra});if(!joined&&a!=='stop')joined=true;setListen(d.listen,d.now);drawSheet();}catch(er){toast('Failed: '+er.message);}};
+  if(q('#sPP'))q('#sPP').onclick=()=>act(L.playing?'pause':'resume');
+  if(q('#sStop'))q('#sStop').onclick=()=>act('stop');
+  if(q('#sRestart'))q('#sRestart').onclick=()=>act('seek',{pos:0});
+  if(adm&&q('#seekBar'))q('#seekBar').onclick=ev=>{const r=ev.currentTarget.getBoundingClientRect(),dd=L.dur||aud.duration;if(dd)act('seek',{pos:(ev.clientX-r.left)/r.width*dd});};
+  $$('#msBody .song [data-p]').forEach(b=>b.onclick=async()=>{const id=b.closest('.song').dataset.id;
+    if(b.dataset.p==='play'){joined=true;await act('play',{id});toast('🎧 Playing on both phones');}
+    else{await withBtn(b,async()=>{await api(`/api/admin/audio/${id}/delete`,{});await reload(true);drawSheet();});}});
+  if(q('#sUp'))q('#sUp').onchange=async e=>{const f=e.target.files[0];if(!f)return;if(f.size>20*1048576){toast('Max 20 MB');return;}
+    toast('Uploading '+f.name+'…');try{const r=await fetch(API+'/api/admin/audio',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':f.type||'audio/mpeg','X-Title':encodeURIComponent(f.name)},body:f});if(!r.ok)throw new Error((await r.json()).error);await reload(true);drawSheet();toast('Song added 🎶');}catch(er){toast('Upload failed: '+er.message);}};
+  if(q('#sSpotGo'))q('#sSpotGo').onclick=()=>{const u=q('#sSpot').value.trim();if(!spotifyEmbed(u)){toast('Paste a Spotify track or playlist link');return;}act('spotify',{url:u,title:'Spotify'});};
+}
+
+/* ===== cinematic scroll intro (frame sequence) ===== */
+const INTRO={N:181,dir:'intro/',ext:'.webp'};
+function playIntro(done){
+  const root=$('#intro'),cv=$('#iCanvas'),ctx=cv.getContext('2d'),sc=$('#iScroll');
+  const imgs=new Array(INTRO.N);let loaded=0,cur=0,target=0,raf=0,last=-1,idle=null;
+  const src=i=>INTRO.dir+'f'+String(i).padStart(3,'0')+INTRO.ext;
+  // load order: every 12th first (fast coarse scrub), then every 4th, then the rest
+  const order=[];[12,4,1].forEach(st=>{for(let i=0;i<INTRO.N;i+=st)if(!order.includes(i))order.push(i);});
+  let qi=0;const pump=()=>{while(qi<order.length&&inflight<6){const i=order[qi++];inflight++;const im=new Image();im.decoding='async';im.onload=()=>{imgs[i]=im;loaded++;inflight--;if(i===0||Math.abs(i-Math.round(cur))<3)last=-1;$('#iLoad').textContent=loaded<INTRO.N?Math.round(loaded/INTRO.N*100)+'%':'';pump();};im.onerror=()=>{inflight--;pump();};im.src=src(i);}};
+  let inflight=0;pump();
+  function size(){const d=Math.min(devicePixelRatio||1,2);cv.width=Math.round(innerWidth*d);cv.height=Math.round(innerHeight*d);last=-1;}
+  size();addEventListener('resize',size);
+  function nearest(i){if(imgs[i])return imgs[i];for(let k=1;k<INTRO.N;k++){if(imgs[i-k])return imgs[i-k];if(imgs[i+k])return imgs[i+k];}return null;}
+  function draw(i){const im=nearest(i);if(!im)return;const cw=cv.width,ch=cv.height,r=Math.max(cw/im.width,ch/im.height),w=im.width*r,h=im.height*r;ctx.drawImage(im,(cw-w)/2,(ch-h)/2,w,h);}
+  const win=(p,a,b,f=.05)=>p<a-f||p>b+f?0:p<a?(p-a+f)/f:p>b?(b+f-p)/f:1;
+  function frame(){
+    const max=sc.scrollHeight-sc.clientHeight,p=max>0?Math.min(1,Math.max(0,sc.scrollTop/max)):0;
+    target=p*(INTRO.N-1);cur+=(target-cur)*.14;if(Math.abs(target-cur)<.01)cur=target;
+    const fi=Math.round(cur);if(fi!==last){draw(fi);last=fi;}
+    const t=Math.max(0,1-p/.16);$('#iTitle').style.opacity=t;$('#iTitle').style.transform=`translateY(${-p*240}px) scale(${1+p*.8})`;$('#iTag').style.opacity=t;
+    [['#iC1',.22,.4],['#iC2',.5,.7],['#iC3',.86,1.2]].forEach(([id,a,b])=>{const o=win(p,a,b);const el=$(id);el.style.opacity=o;el.style.transform=`translateY(${(1-o)*28}px)`;el.style.pointerEvents=o>.6?'auto':'none';});
+    $('#iHint').style.opacity=p<.03?1:0;$('#iBar i').style.height=(p*100)+'%';
+    raf=requestAnimationFrame(frame);
+  }
+  root.classList.add('on');sc.scrollTop=0;raf=requestAnimationFrame(frame);
+  const finish=()=>{cancelAnimationFrame(raf);root.style.transition='opacity .8s';root.style.opacity='0';LS.set('intro','1');setTimeout(()=>{root.classList.remove('on');root.style.opacity='';root.style.transition='';done&&done();},800);};
+  $('#iEnter').onclick=()=>{buzz(20);finish();};$('#iSkip').onclick=finish;
+}
+window.TiReplay=()=>playIntro(()=>{});
+
+/* ===== start ===== */
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+if(LS.get('intro'))setTimeout(boot,1400);else setTimeout(()=>{show('none');playIntro(boot);},600);
+})();
+</script>
+</body>
+</html>

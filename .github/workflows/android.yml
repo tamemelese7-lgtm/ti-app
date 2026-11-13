@@ -1,0 +1,82 @@
+name: Build Ti for Android
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['assets/**', 'scripts/**', 'capacitor.config.json', 'package.json', '.github/workflows/android.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # First run only: create the app's signing key and save it in this (private) repo,
+      # so every future APK can update the one already installed on her phone.
+      - name: Signing key (created once, then reused)
+        run: |
+          if [ ! -f signing/ti-upload.jks ]; then
+            mkdir -p signing
+            PASS=$(openssl rand -hex 16)
+            keytool -genkeypair -keystore signing/ti-upload.jks -storetype PKCS12 -alias ti \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "$PASS" -keypass "$PASS" -dname "CN=Ti, O=TM"
+            printf '%s' "$PASS" > signing/password.txt
+            git config user.name "ti-bot"
+            git config user.email "ti-bot@users.noreply.github.com"
+            git add signing
+            git commit -m "Add Ti signing key [skip ci]"
+            git push
+          fi
+          keytool -list -keystore signing/ti-upload.jks -storepass "$(cat signing/password.txt)" > /dev/null
+          echo "Signing key OK"
+
+      - name: Install
+        run: npm install --no-audit --no-fund
+
+      - name: Prepare Android project
+        env:
+          TI_APP_URL: ${{ vars.TI_APP_URL }}
+        run: npm run android:prepare
+
+      - name: Build signed APK
+        working-directory: android
+        run: |
+          export TI_KEYSTORE="$GITHUB_WORKSPACE/signing/ti-upload.jks"
+          export TI_KEYSTORE_PASSWORD="$(cat $GITHUB_WORKSPACE/signing/password.txt)"
+          export TI_KEY_ALIAS=ti
+          export TI_VERSION_CODE=${{ github.run_number }}
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleRelease
+
+      - name: Collect APK
+        run: |
+          mkdir -p out
+          cp android/app/build/outputs/apk/release/*.apk out/Ti-build${{ github.run_number }}.apk
+          ls -la out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ti-APK-build-${{ github.run_number }}
+          path: out/
+          retention-days: 30
+
+      - name: Publish as a release (easy download link)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Ti build ${{ github.run_number }}
+          files: out/*.apk

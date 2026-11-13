@@ -1,0 +1,10 @@
+{
+  "appId": "com.tm.ti",
+  "appName": "Ti",
+  "webDir": "web",
+  "backgroundColor": "#c2185b",
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#c2185b"
+  }
+}
