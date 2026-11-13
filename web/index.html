@@ -269,11 +269,49 @@ body.listening .composer{bottom:calc(152px + var(--sb))}
 
 #toast{position:fixed;z-index:80;left:50%;top:calc(14px + var(--st));transform:translate(-50%,-140px);padding:12px 18px;border-radius:99px;font-size:13px;font-weight:700;transition:transform .5s cubic-bezier(.2,.9,.2,1);max-width:92vw;text-align:center}
 #toast.on{transform:translate(-50%,0)}
+
+/* ===== PERFORMANCE: no live blur, no endless animations on cards ===== */
+button,.btn,a,label,input,textarea{touch-action:manipulation}
+.glass{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  background:linear-gradient(135deg,rgba(255,255,255,.30),rgba(255,255,255,.12) 55%,rgba(255,255,255,.18)),rgba(150,20,95,.30)!important}
+.glass::after{animation:none!important;transform:none!important;background:linear-gradient(160deg,rgba(255,255,255,.22),transparent 38%)!important}
+.btn{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.box .face{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+#bg i{animation:none!important;filter:blur(40px)}
+body.hasvideo #bg,body.stillbg #bg{display:none}
+.idc .holo{animation:none!important}
+nav.glass,#mbar,.composer.glass,header .hbtn{background:linear-gradient(135deg,rgba(255,255,255,.28),rgba(255,255,255,.14)),rgba(130,15,85,.72)!important}
+#msheet{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(40,0,28,.55)}
+#msheet .sh{background:linear-gradient(160deg,rgba(255,255,255,.22),rgba(255,255,255,.06)),rgba(150,18,95,.97)!important}
+#pinwrap{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(40,0,28,.7)}
+#stillbg{position:fixed;inset:0;z-index:1;background:url('bg-still.jpg') center/cover;display:none}
+body.stillbg #stillbg{display:block}
+.btn:active,.ib:active,nav button:active{transform:scale(.94);transition:transform .08s}
+/* spotify host */
+#spHost{display:none;margin:4px 0 6px}
+#spHost.on{display:block}
+#spHost iframe{width:100%;height:152px;border:0;border-radius:14px}
+/* ===== issued ID card ===== */
+#cardModal{position:fixed;inset:0;z-index:58;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(40,0,28,.82);padding:24px}
+#cardModal.on{display:flex}
+.slot{width:min(92vw,380px);height:14px;border-radius:10px;background:#2a0a1e;box-shadow:inset 0 3px 8px rgba(0,0,0,.8),0 1px 0 rgba(255,255,255,.3);position:relative;z-index:2}
+.cwrap{width:min(88vw,360px);aspect-ratio:1.586;perspective:1200px;margin-top:-6px;position:relative;z-index:1;overflow:visible}
+.cfly{width:100%;height:100%;transform-style:preserve-3d;transform:translateY(-110%) scale(.96);opacity:0}
+#cardModal.go .cfly{animation:issue 1.6s cubic-bezier(.2,.9,.2,1) forwards}
+@keyframes issue{0%{transform:translateY(-110%) scale(.96);opacity:0}15%{opacity:1}70%{transform:translateY(4%) scale(1)}100%{transform:translateY(0) scale(1);opacity:1}}
+.cflip{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+.cflip.back{transform:rotateY(180deg)}
+.cface{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:22px;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,.7)}
+.cface img{width:100%;height:100%;display:block}
+.cface.b{transform:rotateY(180deg)}
+.cardacts{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap;justify-content:center}
+
 </style>
 </head>
 <body>
 <div id="bg"><i></i><i></i><i></i><i></i></div>
 <video id="bgv" muted loop playsinline autoplay preload="auto"></video>
+<div id="stillbg"></div>
 <div id="tint"></div>
 
 <!-- splash -->
@@ -334,7 +372,8 @@ body.listening .composer{bottom:calc(152px + var(--sb))}
 
 <audio id="aud" preload="auto" playsinline></audio>
 <div id="mbar" class="glass"><div class="disc paused" id="mbDisc"></div><div class="tt"><b id="mbTitle">—</b><small id="mbSub">Listening together</small><div class="pbar"><i id="mbProg"></i></div></div><button class="ib" id="mbMain">▶</button><button class="ib" id="mbHeart">❤️</button><button class="ib" id="mbOpen">🎧</button></div>
-<div id="msheet"><div class="sh glass" id="msBody"></div></div>
+<div id="msheet"><div class="sh glass"><div id="spHost"><div id="spEmbed"></div></div><div id="msBody"></div></div></div>
+<div id="cardModal"><div class="slot"></div><div class="cwrap"><div class="cfly"><div class="cflip" id="cflip"><div class="cface"><img id="cFront" alt=""></div><div class="cface b"><img id="cBack" alt=""></div></div></div></div><div class="mini" style="margin-top:14px;color:#fff">Tap the card to flip it</div><div class="cardacts"><button class="btn solid" id="cSave">⬇ Save / Share</button><button class="btn" id="cClose">Close</button></div></div>
 
 <div id="pinwrap"><div class="glass pinbox" id="pinbox">
   <div style="font-family:Unbounded;font-weight:500;font-size:15px;letter-spacing:.06em">🔐 Secure access</div>
@@ -375,7 +414,9 @@ async function api(path,body){
 }
 
 /* ===== background video (slot for the realistic 3D clip) ===== */
-(function(){const v=$('#bgv');v.src=BG_VIDEO;v.addEventListener('playing',()=>{v.classList.add('on');document.body.classList.add('hasvideo');});v.addEventListener('error',()=>v.remove());const p=v.play();if(p&&p.catch)p.catch(()=>{});})();
+(function(){const weak=(navigator.hardwareConcurrency||8)<=4||(navigator.deviceMemory||8)<=3;const pref=LS.get('motion');const motion=pref?pref==='1':!weak;
+  if(!motion){document.body.classList.add('stillbg');$('#bgv').remove();return;}
+  const v=$('#bgv');document.addEventListener('visibilitychange',()=>{if(document.hidden)v.pause();else v.play().catch(()=>{});});v.src=BG_VIDEO;v.addEventListener('playing',()=>{v.classList.add('on');document.body.classList.add('hasvideo');});v.addEventListener('error',()=>v.remove());const p=v.play();if(p&&p.catch)p.catch(()=>{});})();
 
 /* ===== device ===== */
 async function deviceInfo(){
@@ -558,11 +599,12 @@ V.m_home=()=>{
   const t=ST.today,left=Math.max(0,t.total-t.answered),pct=Math.round(t.answered/Math.max(1,t.total)*100);
   return `<div class="h">Hi, <em>${esc(ST.me.name)}</em></div><div class="sub">Every answer brings you closer to today's surprise.</div>
   <div class="eyebrow">Our card</div>${idCard()}
+  <button class="btn solid block" style="margin:-2px 0 6px" onclick="TiCard()">✨ Get our card</button>
   <div class="eyebrow">Today</div>
   <div class="glass card row">${ringSVG(pct,t.answered+'/'+t.total,'today')}<div><div style="font-family:Unbounded;font-weight:500;font-size:16px">${left?left+' question'+(left>1?'s':'')+' left':'All done 💗'}</div><div class="sub" style="margin:6px 0 12px">${ST.question?'A new question is waiting.':left?'No new question yet.':'See you tomorrow.'}</div>${ST.question?'<button class="btn solid sm" data-go="q">Answer now</button>':''}</div></div>
   ${revealCard()}${musicCard()}
   <button class="glass card row" id="thinkBtn" style="width:100%;text-align:left"><div class="hl" style="margin:0;width:44px;height:44px;font-size:19px">♥</div><div><div style="font-weight:800">Thinking of you</div><div class="mini">Tap to send ${esc(ST.partner.name)} a heartbeat</div></div></button>
-  <button class="btn sm block" style="margin-top:4px" onclick="TiReplay()">▶ Replay our intro</button>`;
+  <div class="row" style="gap:8px;margin-top:4px"><button class="btn sm" style="flex:1" onclick="TiReplay()">▶ Replay intro</button><button class="btn sm" style="flex:1" onclick="TiMotion(${document.body.classList.contains('stillbg')?1:0})">${document.body.classList.contains('stillbg')?'🎬 Moving background':'⚡ Faster (still background)'}</button></div>`;
 };
 B.m_home=()=>{$('#thinkBtn').onclick=async()=>{buzz([30,60,30]);try{await api('/api/ping',{});toast('💗 Sent');}catch(e){toast('Not sent — offline');}};};
 
@@ -729,13 +771,14 @@ V.a_members=()=>{
     <div class="mini" style="margin-top:4px">📱 ${esc(u.model)} · ${esc(u.os)}</div><div class="mini">Joined ${fmtDate(u.date)}${u.lastSeen?' · seen '+fmtDate(u.lastSeen)+' '+fmtTime(u.lastSeen):''}</div></div></div>
     <div class="acts">${u.status!=='approved'?'<button class="btn ok sm" data-u="approve">Approve</button>':''}${u.status!=='banned'?'<button class="btn bad sm" data-u="ban">Ban</button>':''}<button class="btn sm" data-u="delete">Delete</button></div></div>`).join('')||'<div class="glass card empty">No one has registered yet.</div>'}
   <div class="eyebrow">Your card</div>${idCard()}
+  <button class="btn solid block" style="margin:-2px 0 6px" onclick="TiCard()">✨ Get our card</button>
   <div class="eyebrow">Settings</div>
-  <div class="glass card"><div class="mini">YOUR NAME</div><div class="row" style="margin-top:8px"><input type="text" id="meName" value="${esc(ST.cfg.meName)}" maxlength="40"><button class="btn sm" id="meSave">Save</button></div></div>
+  <div class="glass card"><div class="mini">YOUR NAME · shown to her and on the card</div><div class="row" style="margin-top:8px"><input type="text" id="meName" value="${esc(ST.cfg.meName)}" maxlength="40"><button class="btn sm" id="meSave">Save</button></div></div>
   ${musicCard()}
   <div class="glass card"><div class="row between"><div><div class="mini">TELEGRAM ALERTS</div><div style="font-weight:800;margin-top:4px">${ST.tg?'Connected ✓':ST.tgToken?'Not linked yet':'TG_TOKEN not set'}</div></div>${ST.tgToken?'<button class="btn sm" id="tgBtn">Connect</button>':''}</div>
   <div class="mini" style="margin-top:8px">After tapping Connect, open your bot in Telegram and send /start within 15 minutes.</div></div>
   <div class="glass card"><div class="mini">ADMIN DEVICES</div>${ST.adminDevices.map(d=>`<div style="margin-top:8px">📱 ${esc(d.model)} <span class="mini">· ${fmtDate(d.date)}</span></div>`).join('')}
-  <div class="acts"><button class="btn sm" onclick="TiReplay()">▶ Replay intro</button><button class="btn sm" id="lockMe">🔒 Lock admin on this phone</button><button class="btn bad sm" id="lockAll">Sign out all</button></div></div>`;
+  <div class="acts"><button class="btn sm" onclick="TiReplay()">▶ Replay intro</button><button class="btn sm" onclick="TiMotion(${document.body.classList.contains('stillbg')?1:0})">${document.body.classList.contains('stillbg')?'🎬 Moving background':'⚡ Still background'}</button><button class="btn sm" id="lockMe">🔒 Lock admin on this phone</button><button class="btn bad sm" id="lockAll">Sign out all</button></div></div>`;
 };
 B.a_members=()=>{
   $$('.dev [data-u]').forEach(b=>b.onclick=async()=>{const id=b.closest('.dev').dataset.id,a=b.dataset.u;await withBtn(b,async()=>{try{await api(`/api/admin/user/${id}/${a}`,{});await reload();toast(a==='approve'?'Approved 💗':a==='ban'?'⛔ Banned':'Deleted');}catch(e){toast(e.message==='full'?'Already full — ban the other first':'Failed');}});});
@@ -756,10 +799,10 @@ const audUrl=id=>`${API}/api/audio/${id}?t=${encodeURIComponent(token)}`;
 const fmtS=x=>{x=Math.max(0,x|0);return (x/60|0)+':'+String(x%60).padStart(2,'0');};
 function setListen(l,now){if(now)offset=now-Date.now();const prev=L;L=l||null;
   document.body.classList.toggle('listening',!!L);
-  if(!L){if(!aud.paused)aud.pause();aud.removeAttribute('src');joined=false;}
-  else if(!prev||prev.v!==L.v||prev.id!==L.id)sync(true);
+  if(!L){if(!aud.paused)aud.pause();aud.removeAttribute('src');joined=false;spSync(false);}
+  else if(!prev||prev.v!==L.v||prev.id!==L.id){sync(true);spSync(true);}
   (L&&L.reacts||[]).forEach(r=>{if(r.at>reactSeen){reactSeen=r.at;if((role==='admin')!==(r.from==='me'))flyEmoji(r.e);}});
-  drawBar();if($('#msheet').classList.contains('on'))drawSheet();}
+  drawBar();if($('#msheet').classList.contains('on'))drawSheet(false);}
 function sync(force){
   if(!L||L.kind!=='audio'||!joined)return;
   const url=audUrl(L.id);if(aud.dataset.id!==L.id){aud.src=url;aud.dataset.id=L.id;}
@@ -769,40 +812,44 @@ function sync(force){
   else{aud.pause();if(Math.abs(aud.currentTime-e)>.5)try{aud.currentTime=e;}catch(er){}}
   if('mediaSession' in navigator)try{navigator.mediaSession.metadata=new MediaMetadata({title:L.title,artist:'Ti · together',artwork:[{src:'icon-512.png',sizes:'512x512',type:'image/png'}]});}catch(er){}
 }
-function join(){joined=true;sync(true);drawBar();}
+function join(){joined=true;sync(true);spSync(true);drawBar();}
 aud.addEventListener('loadedmetadata',()=>{if(L&&role==='admin'&&!L.dur&&aud.duration&&isFinite(aud.duration)){L.dur=aud.duration;api(`/api/admin/audio/${L.id}/meta`,{dur:aud.duration}).catch(()=>{});}sync(true);});
 aud.addEventListener('play',drawBar);aud.addEventListener('pause',drawBar);
 async function pollListen(){if(!token||document.hidden)return;try{const d=await api('/api/listen');setListen(d.listen,d.now);}catch(e){}}
 function startListenPoll(){clearInterval(lpollT);lpollT=setInterval(()=>{pollListen();if(L&&joined)sync(false);},L?4000:8000);}
-setInterval(()=>{if(L){drawBar(true);if(joined&&L.playing)sync(false);}},1000);
+setInterval(()=>{if(L){drawBar(true);if(joined&&L.playing){sync(false);spSync(false);}if($('#msheet').classList.contains('on'))liveSheet();}},1000);
 function drawBar(light){
   if(!L)return;const e=expected(),d=L.dur||(isFinite(aud.duration)?aud.duration:0);
   $('#mbProg').style.width=d?Math.min(100,e/d*100)+'%':'0%';
   if(light)return;
   $('#mbTitle').textContent=L.title;
   const spot=L.kind==='spotify';
-  $('#mbSub').textContent=spot?'Spotify · open to play':L.playing?(joined?'Playing for both of you':'Tap ▶ to listen with '+((ST&&ST.partner&&ST.partner.name)||'them')):'Paused';
+  $('#mbSub').textContent=spot?(joined?(L.playing?'Spotify · playing together':'Paused'):'Tap ▶ to listen together'):L.playing?(joined?'Playing for both of you':'Tap ▶ to listen with '+((ST&&ST.partner&&ST.partner.name)||'them')):'Paused';
   const live=joined&&!aud.paused;
   $('#mbDisc').classList.toggle('paused',!live);
-  $('#mbMain').textContent=spot?'↗':(!joined?'▶':role==='admin'?(L.playing?'⏸':'▶'):(aud.muted?'🔇':'🔊'));
+  $('#mbMain').textContent=spot?(!joined?'▶':role==='admin'?(L.playing?'⏸':'▶'):'🎧'):(!joined?'▶':role==='admin'?(L.playing?'⏸':'▶'):(aud.muted?'🔇':'🔊'));
 }
-$('#mbMain').onclick=async()=>{buzz(10);if(!L)return;if(L.kind==='spotify'){openSheet();return;}
-  if(!joined){join();return;}
+$('#mbMain').onclick=async()=>{buzz(10);if(!L)return;
+  if(!joined){join();if(L.kind==='spotify')openSheet();return;}
+  if(L.kind==='spotify'&&role!=='admin'){openSheet();return;}
   if(role==='admin'){try{const d=await api('/api/listen',{action:L.playing?'pause':'resume'});setListen(d.listen,d.now);}catch(e){toast('Failed');}}
   else{aud.muted=!aud.muted;drawBar();toast(aud.muted?'Muted on your phone':'Sound on');}};
 $('#mbHeart').onclick=()=>react('❤️');$('#mbOpen').onclick=openSheet;
 async function react(e){buzz(15);flyEmoji(e);try{const d=await api('/api/listen',{action:'react',e});reactSeen=Date.now()+5e3;setListen(d.listen,d.now);}catch(er){}}
 function flyEmoji(e){for(let i=0;i<5;i++){const f=document.createElement('div');f.className='fly';f.textContent=e;f.style.left=(15+Math.random()*70)+'vw';f.style.animationDelay=(i*.18)+'s';document.body.appendChild(f);setTimeout(()=>f.remove(),3200);}}
-function openSheet(){$('#msheet').classList.add('on');drawSheet();}
+function openSheet(){$('#msheet').classList.add('on');drawSheet(true);spSync(false);}
 $('#msheet').addEventListener('click',e=>{if(e.target.id==='msheet')$('#msheet').classList.remove('on');});
-function drawSheet(){
+let sheetKey='';
+function drawSheet(force){const k=[L&&L.v,L&&L.id,L&&L.kind,L&&L.url,L&&L.playing,joined,((ST&&ST.songs)||[]).length,role].join('|');if(!force&&k===sheetKey){liveSheet();return;}sheetKey=k;renderSheet();}
+function liveSheet(){if(!L)return;const e=expected(),d=L.kind==='spotify'?spDur:(L.dur||(isFinite(aud.duration)?aud.duration:0));const t=$('#shTime');if(t)t.textContent=(L.kind==='spotify'?'Spotify':L.playing?'Playing for both of you':'Paused')+(d?` · ${fmtS(Math.min(e,d))} / ${fmtS(d)}`:'');const b=$('#seekBar i');if(b)b.style.width=(d?Math.min(100,e/d*100):0)+'%';const g=$('#msBody .bigdisc');if(g)g.classList.toggle('paused',!(joined&&L.playing));}
+function renderSheet(){
   const adm=role==='admin',songs=(ST&&ST.songs)||[],e=expected(),d=L&&(L.dur||(isFinite(aud.duration)?aud.duration:0));
   const spot=L&&L.kind==='spotify'?spotifyEmbed(L.url):null;
   $('#msBody').innerHTML=`<div class="grab"></div>
   ${L?`<div class="bigdisc ${joined&&!aud.paused?'':'paused'}"></div>
     <div style="text-align:center;font-family:Unbounded;font-weight:500;font-size:18px">${esc(L.title)}</div>
-    <div class="mini" style="text-align:center;margin-top:4px">${spot?'Spotify':L.playing?'Playing for both of you':'Paused'}${d?` · ${fmtS(e)} / ${fmtS(d)}`:''}</div>
-    ${spot?`<iframe class="sp" src="${spot}" allow="autoplay; encrypted-media" loading="lazy" style="height:152px"></iframe><div class="mini" style="margin-top:6px">Spotify plays full songs only when signed in to Spotify; otherwise a 30-second preview.</div>`:
+    <div class="mini" id="shTime" style="text-align:center;margin-top:4px">${spot?'Spotify':L.playing?'Playing for both of you':'Paused'}${d?` · ${fmtS(e)} / ${fmtS(d)}`:''}</div>
+    ${spot?`<div class="ctrls">${!joined?'<button class="ib solid" id="sJoin">▶</button>':adm?`<button class="ib" id="sRestart">⏮</button><button class="ib solid" id="sPP">${L.playing?'⏸':'▶'}</button><button class="ib" id="sStop">⏹</button>`:''}</div><div class="mini" style="text-align:center">Plays full songs when this phone is signed in to Spotify; otherwise a 30-second preview.</div>`:
     `<div class="bar" id="seekBar" style="margin-top:14px;height:9px;${adm?'cursor:pointer':''}"><i style="width:${d?Math.min(100,e/d*100):0}%"></i></div>
     <div class="ctrls">${!joined?'<button class="ib solid" id="sJoin">▶</button>':adm?`<button class="ib" id="sRestart">⏮</button><button class="ib solid" id="sPP">${L.playing?'⏸':'▶'}</button><button class="ib" id="sStop">⏹</button>`:`<button class="ib solid" id="sMute">${aud.muted?'🔇':'🔊'}</button>`}</div>
     <div class="mini" style="margin-top:12px">YOUR VOLUME · only on this phone</div>
@@ -815,22 +862,112 @@ function drawSheet(){
     <div class="eyebrow">Or a Spotify link</div>
     <input type="url" id="sSpot" placeholder="https://open.spotify.com/track/…"><button class="btn sm" style="margin-top:8px" id="sSpotGo">Share with her</button>`:''}`;
   const q=x=>$('#msBody '+x);
-  if(q('#sJoin'))q('#sJoin').onclick=()=>{join();drawSheet();};
-  if(q('#sMute'))q('#sMute').onclick=()=>{aud.muted=!aud.muted;drawSheet();drawBar();};
+  if(q('#sJoin'))q('#sJoin').onclick=()=>{join();drawSheet(true);};
+  if(q('#sMute'))q('#sMute').onclick=()=>{aud.muted=!aud.muted;drawSheet(true);drawBar();};
   if(q('#sVol'))q('#sVol').oninput=e=>{aud.volume=e.target.value/100;aud.muted=false;LS.set('vol',aud.volume);};
   $$('#msBody [data-r]').forEach(b=>b.onclick=()=>react(b.dataset.r));
-  const act=async(a,extra={})=>{try{const d=await api('/api/listen',{action:a,...extra});if(!joined&&a!=='stop')joined=true;setListen(d.listen,d.now);drawSheet();}catch(er){toast('Failed: '+er.message);}};
+  const act=async(a,extra={})=>{try{const d=await api('/api/listen',{action:a,...extra});if(!joined&&a!=='stop')joined=true;setListen(d.listen,d.now);drawSheet(true);}catch(er){toast('Failed: '+er.message);}};
   if(q('#sPP'))q('#sPP').onclick=()=>act(L.playing?'pause':'resume');
   if(q('#sStop'))q('#sStop').onclick=()=>act('stop');
   if(q('#sRestart'))q('#sRestart').onclick=()=>act('seek',{pos:0});
-  if(adm&&q('#seekBar'))q('#seekBar').onclick=ev=>{const r=ev.currentTarget.getBoundingClientRect(),dd=L.dur||aud.duration;if(dd)act('seek',{pos:(ev.clientX-r.left)/r.width*dd});};
+  if(adm&&q('#seekBar'))q('#seekBar').onclick=ev=>{const r=ev.currentTarget.getBoundingClientRect(),dd=L.kind==='spotify'?spDur:(L.dur||aud.duration);if(dd)act('seek',{pos:(ev.clientX-r.left)/r.width*dd});};
   $$('#msBody .song [data-p]').forEach(b=>b.onclick=async()=>{const id=b.closest('.song').dataset.id;
     if(b.dataset.p==='play'){joined=true;await act('play',{id});toast('🎧 Playing on both phones');}
-    else{await withBtn(b,async()=>{await api(`/api/admin/audio/${id}/delete`,{});await reload(true);drawSheet();});}});
+    else{await withBtn(b,async()=>{await api(`/api/admin/audio/${id}/delete`,{});await reload(true);drawSheet(true);});}});
   if(q('#sUp'))q('#sUp').onchange=async e=>{const f=e.target.files[0];if(!f)return;if(f.size>20*1048576){toast('Max 20 MB');return;}
-    toast('Uploading '+f.name+'…');try{const r=await fetch(API+'/api/admin/audio',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':f.type||'audio/mpeg','X-Title':encodeURIComponent(f.name)},body:f});if(!r.ok)throw new Error((await r.json()).error);await reload(true);drawSheet();toast('Song added 🎶');}catch(er){toast('Upload failed: '+er.message);}};
-  if(q('#sSpotGo'))q('#sSpotGo').onclick=()=>{const u=q('#sSpot').value.trim();if(!spotifyEmbed(u)){toast('Paste a Spotify track or playlist link');return;}act('spotify',{url:u,title:'Spotify'});};
+    toast('Uploading '+f.name+'…');try{const r=await fetch(API+'/api/admin/audio',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':f.type||'audio/mpeg','X-Title':encodeURIComponent(f.name)},body:f});if(!r.ok)throw new Error((await r.json()).error);await reload(true);drawSheet(true);toast('Song added 🎶');}catch(er){toast('Upload failed: '+er.message);}};
+  if(q('#sSpotGo'))q('#sSpotGo').onclick=async()=>{const u=q('#sSpot').value.trim();if(!spotifyEmbed(u)){toast('Paste a Spotify track or playlist link');return;}
+    let title='Spotify';try{const o=await (await fetch('https://open.spotify.com/oembed?url='+encodeURIComponent(u))).json();if(o&&o.title)title=o.title;}catch(e){}
+    joined=true;await act('spotify',{url:u,title});toast('🎧 Shared with her');};
 }
+
+
+/* ===== Spotify, synced through Spotify's own embed controller ===== */
+let SPAPI=null,SPC=null,spUri='',spPos=0,spDur=0,spPaused=true,spCreating=false;
+function spUriOf(u){const m=String(u||'').match(/open\.spotify\.com\/(?:intl-[a-z]+\/)?(track|album|playlist|episode)\/([A-Za-z0-9]+)/);return m?`spotify:${m[1]}:${m[2]}`:null;}
+window.onSpotifyIframeApiReady=a=>{SPAPI=a;spSync(true);};
+function loadSpApi(){if(loadSpApi.d)return;loadSpApi.d=1;const sc=document.createElement('script');sc.src='https://open.spotify.com/embed/iframe-api/v1';sc.async=true;document.head.appendChild(sc);}
+function spSync(force){
+  const host=$('#spHost');
+  if(!L||L.kind!=='spotify'){host.classList.remove('on');if(SPC&&!spPaused)try{SPC.pause();}catch(e){}return;}
+  host.classList.add('on');
+  const uri=spUriOf(L.url);if(!uri)return;
+  if(!SPAPI){loadSpApi();return;}
+  if(!SPC){if(spCreating)return;spCreating=true;
+    SPAPI.createController($('#spEmbed'),{uri,width:'100%',height:152},c=>{SPC=c;spUri=uri;spCreating=false;
+      c.addListener('playback_update',e=>{const d=e.data||{};spPos=(d.position||0)/1000;if(d.duration)spDur=d.duration/1000;spPaused=!!d.isPaused;drawBar(true);});
+      c.addListener('ready',()=>spSync(true));});return;}
+  if(spUri!==uri){spUri=uri;spPos=0;spDur=0;spPaused=true;SPC.loadUri(uri);setTimeout(()=>spSync(true),1500);return;}
+  if(!joined)return;
+  const e=expected();
+  if(spDur&&e>spDur-1)return; // past the end (e.g. 30-second preview) — leave it
+  if(L.playing){
+    if(spPaused&&spPos===0){SPC.play();setTimeout(()=>{try{SPC.seek(expected());}catch(er){}},900);return;}
+    if(force||Math.abs(spPos-e)>3)SPC.seek(e);
+    if(spPaused)SPC.resume();
+  }else if(!spPaused)SPC.pause();
+}
+
+/* ===== Issued ID card ===== */
+function loadImg(src){return new Promise(r=>{if(!src)return r(null);const i=new Image();i.crossOrigin='anonymous';i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src+(src.includes('?')?'&':'?')+'cors=1';});}
+function rr(x,X,Y,W,H,R){x.beginPath();x.moveTo(X+R,Y);x.arcTo(X+W,Y,X+W,Y+H,R);x.arcTo(X+W,Y+H,X,Y+H,R);x.arcTo(X,Y+H,X,Y,R);x.arcTo(X,Y,X+W,Y,R);x.closePath();}
+function cardNames(){const adm=role==='admin';const a=adm?ST.me:ST.partner,h=adm?ST.partner:ST.me;return {aN:(a&&a.name)||'Me',aP:a&&a.photo,hN:(h&&h.name)||'You',hP:h&&h.photo};}
+async function makeCard(back){
+  try{await document.fonts.ready;}catch(e){}
+  const W=1012,H=638,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  rr(x,0,0,W,H,46);x.clip();
+  let g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,'#ff8cc0');g.addColorStop(.45,'#e0137a');g.addColorStop(1,'#6a1b9a');x.fillStyle=g;x.fillRect(0,0,W,H);
+  [['rgba(185,230,255,.45)',820,90,330],['rgba(255,241,184,.35)',140,600,300],['rgba(226,198,255,.5)',560,420,260]].forEach(([col,cx,cy,r])=>{const rg=x.createRadialGradient(cx,cy,0,cx,cy,r);rg.addColorStop(0,col);rg.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=rg;x.fillRect(0,0,W,H);});
+  g=x.createLinearGradient(0,0,W,H*.8);g.addColorStop(.3,'rgba(255,255,255,0)');g.addColorStop(.45,'rgba(255,255,255,.22)');g.addColorStop(.6,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.strokeStyle='rgba(255,255,255,.55)';x.lineWidth=4;rr(x,2,2,W-4,H-4,44);x.stroke();
+  const n=cardNames(),F="Unbounded, 'Noto Sans Ethiopic', Manrope, sans-serif";
+  x.fillStyle='#fff';x.textBaseline='alphabetic';
+  if(!back){
+    x.font=`900 104px ${F}`;x.fillText('Ti',58,140);
+    x.font=`700 22px Manrope, sans-serif`;x.textAlign='right';x.fillStyle='rgba(255,255,255,.85)';
+    x.fillText('M E M B E R   C A R D',W-58,80);x.fillText('No. Ti · 0001',W-58,116);x.textAlign='left';
+    const [ia,ih]=await Promise.all([loadImg(img(n.aP)),loadImg(img(n.hP))]);
+    const circ=(im,cx,cy,r,ini)=>{x.save();x.beginPath();x.arc(cx,cy,r,0,7);x.closePath();x.fillStyle='#c2185b';x.fill();x.clip();
+      if(im){const s=Math.max(2*r/im.width,2*r/im.height);x.drawImage(im,cx-im.width*s/2,cy-im.height*s/2,im.width*s,im.height*s);}
+      else{x.fillStyle='#fff';x.font=`700 70px ${F}`;x.textAlign='center';x.fillText(ini,cx,cy+25);x.textAlign='left';}
+      x.restore();x.beginPath();x.arc(cx,cy,r,0,7);x.strokeStyle='#fff';x.lineWidth=7;x.stroke();};
+    circ(ia,170,320,100,(n.aN[0]||'?').toUpperCase());circ(ih,350,320,100,(n.hN[0]||'?').toUpperCase());
+    x.beginPath();x.arc(260,320,34,0,7);x.fillStyle='#fff';x.shadowColor='rgba(255,255,255,.9)';x.shadowBlur=24;x.fill();x.shadowBlur=0;
+    x.fillStyle='#e0137a';x.font=`34px sans-serif`;x.textAlign='center';x.fillText('♥',260,332);x.textAlign='left';
+    x.fillStyle='#fff';x.font=`600 44px ${F}`;x.fillText(`${n.aN} & ${n.hN}`,58,518,760);
+    x.font=`700 22px Manrope, sans-serif`;x.fillStyle='rgba(255,255,255,.85)';x.fillText(('SINCE '+fmtDate(ST.since)).toUpperCase().split('').join(' '),60,565);
+    g=x.createLinearGradient(850,470,950,540);g.addColorStop(0,'#fff3c4');g.addColorStop(1,'#d6a646');x.fillStyle=g;rr(x,850,470,100,74,12);x.fill();
+    x.strokeStyle='rgba(120,80,0,.35)';x.lineWidth=2;for(let i=1;i<3;i++){x.beginPath();x.moveTo(850,470+i*25);x.lineTo(950,470+i*25);x.stroke();}x.beginPath();x.moveTo(900,470);x.lineTo(900,544);x.stroke();
+  }else{
+    x.fillStyle='rgba(30,0,20,.75)';x.fillRect(0,64,W,96);
+    x.fillStyle='#fff';x.textAlign='center';x.font=`900 92px ${F}`;x.fillText('Only us.',W/2,330);
+    x.font=`600 26px Manrope, sans-serif`;x.fillStyle='rgba(255,255,255,.9)';x.fillText('Two worlds  ·  One story  ·  Amharic & isiZulu',W/2,390);
+    x.fillStyle='rgba(255,255,255,.9)';rr(x,120,440,W-240,92,16);x.fill();
+    x.fillStyle='#a0104f';x.font=`italic 600 40px Georgia, 'Noto Sans Ethiopic', serif`;x.fillText(`${n.aN}   ♥   ${n.hN}`,W/2,500,W-280);
+    x.fillStyle='rgba(255,255,255,.8)';x.font=`700 18px Manrope, sans-serif`;x.fillText(('Ti · a private world for two · since '+fmtDate(ST.since)).toUpperCase(),W/2,590);x.textAlign='left';
+  }
+  return c.toDataURL('image/png');
+}
+async function openCard(){
+  const m=$('#cardModal');m.classList.add('on');m.classList.remove('go');$('#cflip').classList.remove('back');toast('Printing your card…');
+  const [f,b]=await Promise.all([makeCard(false),makeCard(true)]);$('#cFront').src=f;$('#cBack').src=b;
+  void m.offsetWidth;m.classList.add('go');buzz([20,60,20,60,40]);
+}
+window.TiCard=openCard;
+$('#cardModal .cwrap').onclick=()=>{$('#cflip').classList.toggle('back');buzz(10);};
+$('#cClose').onclick=()=>$('#cardModal').classList.remove('on');
+$('#cSave').onclick=async()=>{
+  const data=$('#cflip').classList.contains('back')?$('#cBack').src:$('#cFront').src,name='Ti-card.png',C=window.Capacitor;
+  try{
+    if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.Filesystem&&C.Plugins.Share){
+      const r=await C.Plugins.Filesystem.writeFile({path:name,data:data.split(',')[1],directory:'CACHE'});
+      await C.Plugins.Share.share({title:'Our Ti card',files:[r.uri]});return;}
+    const blob=await (await fetch(data)).blob(),file=new File([blob],name,{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Our Ti card'});return;}
+  }catch(e){if(e&&e.name==='AbortError')return;}
+  const a=document.createElement('a');a.href=data;a.download=name;document.body.appendChild(a);a.click();a.remove();toast('Card saved');
+};
+window.TiMotion=on=>{LS.set('motion',on?'1':'0');location.reload();};
 
 /* ===== cinematic scroll intro (frame sequence) ===== */
 const INTRO={N:181,dir:'intro/',ext:'.webp'};
