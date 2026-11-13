@@ -16,7 +16,7 @@ if (!g.includes('TI_KEYSTORE')) {
     }`);
   g = g.replace(/buildTypes\s*\{\s*release\s*\{/, m => m + `
             if (System.getenv("TI_KEYSTORE")) { signingConfig signingConfigs.release }`);
-  g = g.replace(/versionCode\s+\d+/, 'versionCode (System.getenv("TI_VERSION_CODE") ?: "1").toInteger()');
+  g = g.replace(/versionCode\s+\d+/, 'versionCode Integer.parseInt(System.getenv("TI_VERSION_CODE") ?: "1")');
   if (!g.includes('signingConfigs.release') || !g.includes('TI_VERSION_CODE')) { console.error('build.gradle patch failed'); process.exit(1); }
   fs.writeFileSync(gradle, g);
 }
