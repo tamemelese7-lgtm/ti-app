@@ -291,6 +291,78 @@ body.stillbg #stillbg{display:block}
 #spHost{display:none;margin:4px 0 6px}
 #spHost.on{display:block}
 #spHost iframe{width:100%;height:152px;border:0;border-radius:14px}
+
+nav#nav{position:fixed}
+/* ===== CHAT (WhatsApp-style) ===== */
+#chatPane{position:fixed;z-index:19;left:0;right:0;top:calc(62px + var(--st));bottom:calc(90px + var(--sb));display:none;flex-direction:column}
+body.inapp.chatmode #chatPane{display:flex}
+body.chatmode main{display:none}
+body.chatmode #mbar{display:none!important}
+body.kb nav{display:none}
+body.kb #chatPane{bottom:var(--kb,0px)}
+.cp-head{display:flex;align-items:center;gap:10px;margin:0 12px 8px;padding:8px 10px;border-radius:20px}
+.cp-ava{width:42px;height:42px;border-radius:50%;flex:none;background:linear-gradient(135deg,#ffb3d4,#c2185b) center/cover;border:2px solid #fff;display:grid;place-items:center;font-family:Unbounded;font-weight:700}
+.cp-who{flex:1;min-width:0}.cp-who b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-who small{font-size:11.5px;color:var(--mute)}.cp-who small.live{color:#fff;font-weight:700}
+#cpList{flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 12px 10px;display:flex;flex-direction:column;gap:3px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+#cpList::-webkit-scrollbar{display:none}
+#cpList>*{flex-shrink:0}
+.day{align-self:center;font-size:10.5px;font-weight:800;letter-spacing:.08em;padding:5px 11px;border-radius:99px;background:rgba(80,0,50,.45);margin:10px 0 6px}
+.b{position:relative;max-width:80%;padding:8px 11px 6px;border-radius:18px;font-size:15px;line-height:1.42;word-wrap:break-word;overflow-wrap:anywhere;margin-top:3px}
+.b.mine{align-self:flex-end;background:#fff;color:#4a0a2a;border-bottom-right-radius:5px}
+.b.theirs{align-self:flex-start;background:rgba(120,10,75,.62);border:1px solid rgba(255,255,255,.35);border-bottom-left-radius:5px}
+.b .tr{display:block;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.3);font-size:14px}
+.b.mine .tr{border-color:rgba(160,16,79,.18);color:#7a1048}
+.b .tr i{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.08em;opacity:.7;display:block;margin-bottom:2px}
+.b .orig{display:block;margin-top:5px;font-size:12px;opacity:.72}
+.b .ft{display:flex;justify-content:flex-end;align-items:center;gap:4px;font-size:10.5px;opacity:.7;margin-top:3px}
+.b .tick{font-size:12px;letter-spacing:-3px;margin-right:3px}.b .tick.seen{color:#1e88e5;opacity:1}
+.b .rx{position:absolute;bottom:-12px;font-size:14px;background:#fff;border-radius:99px;padding:1px 5px;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.b.mine .rx{left:-6px}.b.theirs .rx{right:-6px}
+.b.withrx{margin-bottom:10px}
+.b img.ph{display:block;max-width:100%;width:240px;border-radius:12px;margin:-2px -4px 4px;background:rgba(255,255,255,.2);object-fit:cover;max-height:320px}
+.b.deleted{font-style:italic;opacity:.6}
+.b .qref{font-size:12px;padding:6px 8px;border-radius:10px;background:rgba(0,0,0,.12);border-left:3px solid currentColor;margin-bottom:6px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.b.ans{max-width:88%}
+.b.ans .q{font-family:inherit;font-weight:700;font-size:12.5px;line-height:1.4;opacity:.85;margin-bottom:6px}
+.b .sc{display:inline-block;margin-top:6px;font-family:Unbounded;font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;background:rgba(255,255,255,.25)}
+.vn{display:flex;align-items:center;gap:9px;min-width:190px}
+.vn button{width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:15px;background:rgba(255,255,255,.25)}
+.b.mine .vn button{background:#c2185b;color:#fff}
+.vn .vb{flex:1;height:4px;border-radius:4px;background:rgba(255,255,255,.3);overflow:hidden}.b.mine .vn .vb{background:rgba(194,24,91,.2)}
+.vn .vb i{display:block;height:100%;width:0;background:currentColor}
+.vn small{font-size:11px;opacity:.8;min-width:32px;text-align:right}
+.typing{align-self:flex-start;padding:10px 14px;border-radius:18px;background:rgba(120,10,75,.62);display:none;gap:4px;margin-top:4px}
+.typing.on{display:flex}.typing i{width:7px;height:7px;border-radius:50%;background:#fff;animation:tdot 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+@keyframes tdot{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+.cp-reply{margin:0 12px 6px;padding:8px 10px;border-radius:14px;background:rgba(80,0,50,.6);font-size:12.5px;display:none;align-items:center;gap:8px}
+.cp-reply.on{display:flex}.cp-reply span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-bar{display:flex;align-items:flex-end;gap:8px;padding:8px 10px;margin:0 8px;border-radius:26px}
+.cp-bar textarea{flex:1;min-height:42px;max-height:120px;margin:0;padding:10px 14px;border-radius:21px;font-size:15.5px;line-height:1.35;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.5)}
+.cp-bar .ib{width:42px;height:42px;font-size:18px;position:relative;overflow:hidden}
+.cp-bar .ib input{position:absolute;inset:0;opacity:0}
+.recui{flex:1;display:none;align-items:center;gap:10px;font-weight:800;padding:0 8px;height:42px}
+.cp-bar.rec .recui{display:flex}.cp-bar.rec textarea,.cp-bar.rec #cpPhoto{display:none}
+.recdot{width:12px;height:12px;border-radius:50%;background:#ff3b5c;animation:beat 1s infinite}
+#nav .cnt{position:absolute;top:2px;right:8px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#fff;color:#c2185b;font-size:11px;font-weight:800;line-height:18px;letter-spacing:0}
+/* action sheet on long-press */
+#msgMenu{position:fixed;inset:0;z-index:70;display:none;align-items:flex-end;justify-content:center;background:rgba(30,0,20,.45)}
+#msgMenu.on{display:flex}
+#msgMenu .mm{width:100%;max-width:460px;margin:0 10px calc(14px + var(--sb));padding:12px;border-radius:24px;background:rgba(150,18,95,.98);border:1px solid rgba(255,255,255,.4)}
+#msgMenu .rr{display:flex;justify-content:space-around;margin-bottom:10px}#msgMenu .rr button{font-size:28px;width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.15)}
+#msgMenu .it{display:block;width:100%;text-align:left;padding:14px 12px;border-radius:14px;font-weight:700}#msgMenu .it:active{background:rgba(255,255,255,.15)}
+/* full-screen photo viewer */
+#viewer{position:fixed;inset:0;z-index:95;background:#000;display:none;touch-action:none;overflow:hidden}
+#viewer.on{display:block}
+#viewer img{position:absolute;left:50%;top:50%;max-width:100%;max-height:100%;transform:translate(-50%,-50%);transform-origin:center;user-select:none;-webkit-user-drag:none;will-change:transform}
+#viewer .vt{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;padding:calc(12px + var(--st)) 14px 12px;background:linear-gradient(rgba(0,0,0,.6),transparent);z-index:2}
+#viewer .vcap{position:absolute;left:0;right:0;bottom:0;padding:16px 18px calc(22px + var(--sb));background:linear-gradient(transparent,rgba(0,0,0,.75));font-size:15px;z-index:2}
+/* heart couple photo */
+.pair2{position:relative;display:flex;align-items:center;margin-top:6px}
+.pair2 canvas{width:132px;height:121px;display:block;filter:drop-shadow(0 8px 18px rgba(80,0,40,.55))}
+.photoRow{display:flex;gap:8px;margin:-2px 0 6px}.photoRow .btn{flex:1;position:relative;overflow:hidden}.photoRow input{position:absolute;inset:0;opacity:0}
+
 /* ===== issued ID card ===== */
 #cardModal{position:fixed;inset:0;z-index:58;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(40,0,28,.82);padding:24px}
 #cardModal.on{display:flex}
@@ -375,6 +447,19 @@ body.stillbg #stillbg{display:block}
 <div id="msheet"><div class="sh glass"><div id="spHost"><div id="spEmbed"></div></div><div id="msBody"></div></div></div>
 <div id="cardModal"><div class="slot"></div><div class="cwrap"><div class="cfly"><div class="cflip" id="cflip"><div class="cface"><img id="cFront" alt=""></div><div class="cface b"><img id="cBack" alt=""></div></div></div></div><div class="mini" style="margin-top:14px;color:#fff">Tap the card to flip it</div><div class="cardacts"><button class="btn solid" id="cSave">⬇ Save / Share</button><button class="btn" id="cClose">Close</button></div></div>
 
+<section id="chatPane">
+  <div class="cp-head glass"><div class="cp-ava" id="cpAva"></div><div class="cp-who"><b id="cpName">—</b><small id="cpStatus">…</small></div><button class="ib" id="cpPing" aria-label="Heartbeat">💗</button><button class="ib" id="cpMusic" aria-label="Music">🎧</button></div>
+  <div id="cpList"></div>
+  <div class="cp-reply" id="cpReply"><span id="cpReplyT"></span><button class="ib" id="cpReplyX" style="width:30px;height:30px;font-size:13px">✕</button></div>
+  <div class="cp-bar glass" id="cpBar">
+    <button class="ib" id="cpPhoto" aria-label="Photo">📷<input type="file" accept="image/*" id="cpPhotoIn"></button>
+    <textarea id="cpIn" rows="1" maxlength="4000" enterkeyhint="send"></textarea>
+    <div class="recui"><span class="recdot"></span><span id="recT">0:00</span><span style="flex:1;font-weight:600;opacity:.8;font-size:13px">Recording…</span><button class="ib" id="recX" aria-label="Cancel">✕</button></div>
+    <button class="ib solid" id="cpSend" aria-label="Send">🎤</button>
+  </div>
+</section>
+<div id="msgMenu"><div class="mm"><div class="rr" id="mmRx"></div><div id="mmItems"></div></div></div>
+<div id="viewer"><div class="vt"><button class="ib" id="vX">✕</button><button class="ib" id="vSave">⬇</button></div><img id="vImg" alt=""><div class="vcap" id="vCap"></div></div>
 <div id="pinwrap"><div class="glass pinbox" id="pinbox">
   <div style="font-family:Unbounded;font-weight:500;font-size:15px;letter-spacing:.06em">🔐 Secure access</div>
   <div class="pdots" id="pdots"></div>
@@ -497,7 +582,7 @@ async function boot(){
     if(ST.role==='member'&&ST.status==='pending'){show('sPending');pollT=setInterval(boot,8000);return;}
     if(ST.role==='member'&&ST.status!=='approved'){show('sBanned');return;}
     role=ST.role;tab=tab||(role==='admin'?'tester':'home');
-    show('sApp');document.body.classList.add('inapp');render();startPoll();checkPing();setListen(ST.listen,ST.now);startListenPoll();
+    show('sApp');document.body.classList.add('inapp');render();startPoll();checkPing();setListen(ST.listen,null);startSync();syncNow();
   }catch(e){
     if(e.status===401){LS.del('token');LS.del('role');token=null;role=null;showWelcome();return;}
     if(e.status===403){show('sBanned');return;}
@@ -508,8 +593,8 @@ function startPoll(){
   clearInterval(pollT);
   pollT=setInterval(async()=>{
     if(document.hidden||busy)return;
-    try{const n=await api('/api/state');setListen(n.listen,n.now);const changed=JSON.stringify(n)!==JSON.stringify(ST);ST=n;
-      if(changed&&!editing())render(true);checkPing();}
+    try{const n=await api('/api/state');const changed=JSON.stringify(n)!==JSON.stringify(ST);ST=n;
+      if(changed&&!editing()&&tab!=='chat')render(true);else if(changed&&tab==='chat')renderNav();checkPing();}
     catch(e){if(e.status===401||e.status===403){boot();}}
   },15000);
 }
@@ -531,6 +616,7 @@ function tabs(){return role==='admin'?[['tester','Tester'],['q','Questions'],['g
 function renderNav(){
   const dots={q:role==='member'?!!ST.question:(ST.drafts||[]).length>0,gift:role==='member'&&ST.gift&&ST.gift.state==='ready',members:role==='admin'&&(ST.users||[]).some(u=>u.status==='pending')};
   $('#nav').innerHTML=tabs().map(([k,l])=>`<button data-t="${k}" class="${k===tab?'on':''}">${dots[k]&&k!==tab?'<span class="dot"></span>':''}<svg viewBox="0 0 24 24">${IC[k]}</svg>${l}</button>`).join('');
+  const un=unreadN;unreadN=-1;setUnread(un);
   $$('#nav button').forEach(b=>b.onclick=()=>{if(tab===b.dataset.t)return;tab=b.dataset.t;buzz(8);render();if(tab!=='chat')api('/api/state').then(n=>{if(JSON.stringify(n)!==JSON.stringify(ST)){ST=n;if(!editing())render(true);}}).catch(()=>{});});
 }
 
@@ -541,10 +627,11 @@ function render(soft){
   renderNav();
   const fn=V[(role==='admin'?'a_':'m_')+tab]||V[(role==='admin'?'a_tester':'m_home')];
   const main=$('#main'),top=main.scrollTop;
-  stopChat();
+  if(tab==='chat'){if(!CH.open)chatOpen(true);else chatHead();return;}
+  if(CH.open)chatOpen(false);
   main.innerHTML=`<div class="view">${fn()}</div>`;
   if(soft)main.scrollTop=top;else main.scrollTop=0;
-  bindCommon();(B[(role==='admin'?'a_':'m_')+tab]||(()=>{}))();
+  bindCommon();(B[(role==='admin'?'a_':'m_')+tab]||(()=>{}))();paintHearts();
 }
 
 /* ---- shared ---- */
@@ -557,19 +644,42 @@ function ringSVG(pct,label,sub,size=118){
 }
 function idCard(){
   const me=ST.me||{},pa=ST.partner||{name:'—'};
-  const mineKey=role==='admin'?'me':'her',theirKey=role==='admin'?'her':null;
-  const ph=(p,name,k)=>`<label class="ph" style="${p?`background-image:url('${img(p)}')`:''}">${p?'':esc((name||'?')[0].toUpperCase())}${k?`<input type="file" accept="image/*" data-photo="${k}">`:''}</label>`;
   return `<div class="idc glass" id="idc"><div class="holo"></div>
   <div class="top"><b>Ti</b><span>Member card<br>${role==='admin'?'Admin':'Ti · 0002'}</span></div>
-  <div class="pair">${ph(me.photo,me.name,mineKey)}<div class="hl">♥</div>${ph(pa.photo,pa.name,theirKey)}</div>
-  <div class="names"><div><b>${esc(me.name)} & ${esc(pa.name)}</b><small>Since ${fmtDate(ST.since)}</small></div><div class="goldchip"></div></div></div>`;
+  <div class="pair2"><canvas class="heartC" width="396" height="363"></canvas></div>
+  <div class="names"><div><b>${esc(me.name)} & ${esc(pa.name)}</b><small>Since ${fmtDate(ST.since)}</small></div><div class="goldchip"></div></div></div>
+  <div class="photoRow"><label class="btn sm">📷 My photo<input type="file" accept="image/*" data-photo="${role==='admin'?'me':'her'}"></label>${role==='admin'?'<label class="btn sm">📷 Her photo<input type="file" accept="image/*" data-photo="her"></label>':''}</div>`;
 }
+/* Couple photo in one heart: his photo on the left half, hers on the right. */
+const IMGC=new Map();
+function loadImgC(key){if(!key)return Promise.resolve(null);if(IMGC.has(key))return IMGC.get(key);const p=loadImg(img(key));IMGC.set(key,p);return p;}
+function heartPath(x,cx,cy,w){const h=w*.92,t=cy-h*.42;x.beginPath();x.moveTo(cx,t+h*.28);
+  x.bezierCurveTo(cx,t+h*.05,cx-w*.08,t-h*.02,cx-w*.27,t);x.bezierCurveTo(cx-w*.52,t+h*.02,cx-w*.52,t+h*.36,cx-w*.48,t+h*.46);
+  x.bezierCurveTo(cx-w*.4,t+h*.68,cx-w*.14,t+h*.86,cx,t+h);x.bezierCurveTo(cx+w*.14,t+h*.86,cx+w*.4,t+h*.68,cx+w*.48,t+h*.46);
+  x.bezierCurveTo(cx+w*.52,t+h*.36,cx+w*.52,t+h*.02,cx+w*.27,t);x.bezierCurveTo(cx+w*.08,t-h*.02,cx,t+h*.05,cx,t+h*.28);x.closePath();}
+async function drawHeart(x,cx,cy,w){
+  const adm=role==='admin',A=adm?ST.me:ST.partner,H=adm?ST.partner:ST.me;
+  const [ia,ih]=await Promise.all([loadImgC(A&&A.photo),loadImgC(H&&H.photo)]);
+  x.save();heartPath(x,cx,cy,w);x.clip();
+  const half=(im,x0,ini,col)=>{x.save();x.beginPath();x.rect(x0,cy-w,w/2,w*2);x.clip();
+    if(im){const bw=w*.62,bh=w*.95,s=Math.max(bw/im.width,bh/im.height);const ccx=x0+w/4;x.drawImage(im,ccx-im.width*s/2,cy-im.height*s/2,im.width*s,im.height*s);}
+    else{const g=x.createLinearGradient(x0,cy-w/2,x0+w/2,cy+w/2);g.addColorStop(0,col[0]);g.addColorStop(1,col[1]);x.fillStyle=g;x.fillRect(x0,cy-w,w/2,w*2);
+      x.fillStyle='#fff';x.font=`700 ${w*.2}px Unbounded, 'Noto Sans Ethiopic', sans-serif`;x.textAlign='center';x.textBaseline='middle';x.fillText(ini,x0+w/4+(x0<cx?w*.03:-w*.03),cy-w*.04);}
+    x.restore();};
+  half(ia,cx-w/2,((A&&A.name)||'?')[0].toUpperCase(),['#ffb3d4','#c2185b']);half(ih,cx,((H&&H.name)||'?')[0].toUpperCase(),['#e2c6ff','#8e0f7a']);
+  const sh=x.createLinearGradient(cx-w/2,cy-w/2,cx+w/2,cy+w/2);sh.addColorStop(0,'rgba(255,255,255,.35)');sh.addColorStop(.35,'rgba(255,255,255,0)');x.fillStyle=sh;x.fillRect(cx-w,cy-w,w*2,w*2);
+  x.restore();
+  x.save();heartPath(x,cx,cy,w);x.lineWidth=w*.035;x.strokeStyle='#fff';x.shadowColor='rgba(255,255,255,.9)';x.shadowBlur=w*.06;x.stroke();x.restore();
+  x.save();x.beginPath();x.moveTo(cx,cy-w*.33);x.lineTo(cx,cy+w*.5);x.strokeStyle='rgba(255,255,255,.75)';x.lineWidth=w*.012;x.stroke();x.restore();
+}
+function paintHearts(){$$('canvas.heartC').forEach(c=>{const x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);drawHeart(x,c.width/2,c.height/2+6,c.width*.92).catch(()=>{});});}
+window.TiToast=t=>toast(t);
 const heartPhoto='data:image/svg+xml;base64,'+btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><defs><radialGradient id="a" cx=".3" cy=".3" r=".9"><stop offset="0" stop-color="#ffe1ee"/><stop offset=".5" stop-color="#ff4f9a"/><stop offset="1" stop-color="#8e0f7a"/></radialGradient></defs><rect width="400" height="300" fill="url(#a)"/><path d="M200 230 C130 180 110 130 150 105 C175 90 195 105 200 120 C205 105 225 90 250 105 C290 130 270 180 200 230Z" fill="#fff" opacity=".9"/></svg>');
 function revealCard(){
   const t=ST.today,frac=Math.min(1,t.answered/Math.max(1,t.total)),blur=Math.round((1-frac)*28),pct=Math.round(frac*100);
   const src=ST.reveal&&ST.reveal.img?img(ST.reveal.img):heartPhoto;
   return `<div class="glass card"><div class="row between" style="margin-bottom:12px"><div><div class="mini">TODAY'S HIDDEN PHOTO</div><div style="font-weight:800;margin-top:2px">${t.answered} / ${t.total} answered</div></div><span class="chip ${pct>=100?'ok':'wait'}">${pct>=100?'Revealed':pct+'%'}</span></div>
-  <div class="reveal"><div class="img" style="background-image:url('${src}');filter:blur(${blur}px)"></div></div>
+  <div class="reveal" style="cursor:pointer" onclick="${pct>=100||role==='admin'?`TiView('${src}','')`:`TiToast('Answer all of today’s questions to see it 💗')`}"><div class="img" style="background-image:url('${src}');filter:blur(${role==='admin'?0:blur}px)"></div></div>
   <div class="bar" style="margin-top:12px"><i style="width:${pct}%"></i></div></div>`;
 }
 function spotifyEmbed(u){const m=String(u||'').match(/open\.spotify\.com\/(?:intl-[a-z]+\/)?(track|album|playlist|episode)\/([A-Za-z0-9]+)/);return m?`https://open.spotify.com/embed/${m[1]}/${m[2]}`:null;}
@@ -588,7 +698,7 @@ async function compress(file,max=1280){
 async function withBtn(btn,fn){if(btn){btn.disabled=true;btn.dataset.l=btn.innerHTML;btn.innerHTML='<span class="spin"></span>';}busy=true;try{return await fn();}finally{busy=false;if(btn&&document.body.contains(btn)){btn.disabled=false;btn.innerHTML=btn.dataset.l;}}}
 async function reload(soft=true){ST=await api('/api/state');render(soft);}
 function bindCommon(){
-  $$('[data-photo]').forEach(inp=>inp.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{toast('Uploading…');const d=await compress(f,700);await api('/api/profile-photo',{img:d,who:inp.dataset.photo});await reload();toast('Saved 💗');}catch(er){toast('Upload failed');}});
+  $$('[data-photo]').forEach(inp=>inp.onchange=async e=>{const f=e.target.files[0];if(!f)return;try{toast('Uploading…');const d=await compress(f,700);await api('/api/profile-photo',{img:d,who:inp.dataset.photo});IMGC.clear();await reload();toast('Saved 💗');}catch(er){toast('Upload failed');}});
   const idc=$('#idc');if(idc){idc.onpointermove=e=>{const r=idc.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;idc.style.transform=`perspective(700px) rotateY(${x*14}deg) rotateX(${-y*14}deg)`;};idc.onpointerleave=()=>idc.style.transform='';}
   $$('[data-go]').forEach(b=>b.onclick=()=>{tab=b.dataset.go;render();});
 }
@@ -628,7 +738,7 @@ V.m_gift=()=>{
   const locked=g.state==='locked';
   return `<div class="h">Your <em>gift.</em></div><div class="sub">${locked?'Sealed with love. Opens soon.':g.state==='opened'?'Opened 💗':'Tap the box to open it.'}</div>
   <div class="glass card"><div class="stage" id="stage">
-  ${g.state==='opened'?`<div class="gopen on" style="background-image:url('${img(g.img)}')"><p>${esc(g.msg)}</p></div>`:
+  ${g.state==='opened'?`<div class="gopen on" style="background-image:url('${img(g.img)}');pointer-events:auto;cursor:zoom-in" onclick="TiView('${img(g.img)}','${esc(g.msg).replace(/'/g,'&#39;')}')"><p>${esc(g.msg)}</p></div>`:
   `<div class="box" id="box"><div class="face"></div><div class="rib"></div><div class="rib hz"></div><div class="bow">🎀</div>${locked?'<div class="lk">🔒</div>':''}</div><div class="gopen" id="gOpen"><p>${esc(g.msg)}</p></div>`}
   </div>${locked?`<div class="count" id="cd"></div>${g.needLeft?`<div class="sub" style="text-align:center;margin-top:12px">…and ${g.needLeft} more answer${g.needLeft>1?'s':''} 💗</div>`:''}`:''}</div>`;
 };
@@ -645,37 +755,183 @@ B.m_gift=()=>{
     setTimeout(()=>{box.style.opacity='0';const stage=$('#stage');
       for(let i=0;i<16;i++){const s=document.createElement('div');s.className='shard';const pts=[0,1,2].map(()=>`${Math.random()*100|0}% ${Math.random()*100|0}%`);s.style.clipPath=`polygon(${pts.join(',')})`;stage.appendChild(s);
         requestAnimationFrame(()=>requestAnimationFrame(()=>{const a=Math.random()*Math.PI*2,dd=160+Math.random()*170;s.style.transform=`translate(${Math.cos(a)*dd}px,${Math.sin(a)*dd}px) rotate(${(Math.random()-.5)*720}deg) scale(.4)`;s.style.opacity='0';}));setTimeout(()=>s.remove(),1300);}
-      go.classList.add('on');ST.gift.state='opened';ST.gift.img=d.img;},280);
+      go.classList.add('on');go.style.pointerEvents='auto';go.style.cursor='zoom-in';go.onclick=()=>openViewer(img(d.img),d.msg);ST.gift.state='opened';ST.gift.img=d.img;setTimeout(()=>toast('Tap the photo to see it full size'),1600);},280);
   };
 };
 
-/* ================= CHAT (both) ================= */
-function chatView(){
-  return `<div class="row between" style="margin:10px 4px 4px"><div class="h" style="margin:0">Just <em>us.</em></div>${role==='admin'?'<button class="btn sm" id="pingHer">💗 Heartbeat</button>':''}</div>
-  <div class="sub">${role==='admin'?'You write Amharic — she reads isiZulu.':'Messages are translated automatically.'}</div>
-  <div class="glass card" style="margin-top:14px;margin-bottom:70px"><div class="msgs" id="msgs"><div class="empty"><span class="spin"></span></div></div></div>
-  <div class="composer glass"><input type="text" id="chatIn" placeholder="${role==='admin'?'መልእክት…':'Message…'}" maxlength="2000" autocomplete="off"><button class="btn solid sm" id="chatSend">Send</button></div>`;
+/* ================= CHAT (both) — WhatsApp-style, built once, updated in place ================= */
+const CH={msgs:new Map(),cursor:0,open:false,other:{},typingAt:0,recording:false,reply:null,bestRtt:1e9,drawn:''};
+V.m_chat=V.a_chat=()=>'';B.m_chat=B.a_chat=()=>{};
+const myId=()=>role==='admin'?'me':'her';
+function chatOpen(on){CH.open=on;document.body.classList.toggle('chatmode',on);if(on){chatHead();drawChat(true);setTimeout(()=>scrollEnd(true),30);syncNow();}}
+function chatHead(){const pa=(ST&&ST.partner)||{};$('#cpName').textContent=pa.name||'—';const av=$('#cpAva');if(pa.photo){av.style.backgroundImage=`url('${img(pa.photo)}')`;av.textContent='';}else{av.style.backgroundImage='';av.textContent=(pa.name||'?')[0].toUpperCase();}
+  $('#cpIn').placeholder=role==='admin'?'መልእክት… (ዙሉኛ ሆኖ ይደርሳታል)':'Message…';drawStatus();}
+function drawStatus(){const o=CH.other||{},st=$('#cpStatus');let t,live=true;
+  if(o.rec)t='🎤 recording voice…';else if(o.typing)t='typing…';else if(o.online)t='online';else{live=false;t=o.lastSeen?'last seen '+(new Date(o.lastSeen).toDateString()===new Date().toDateString()?'today '+fmtTime(o.lastSeen):fmtDate(o.lastSeen)):'';}
+  st.textContent=t;st.classList.toggle('live',live);const ty=$('#cpTyping');if(ty)ty.classList.toggle('on',!!(o.typing||o.rec));}
+function scrollEnd(force){const l=$('#cpList');if(!l)return;if(force||l.scrollHeight-l.scrollTop-l.clientHeight<160)l.scrollTop=l.scrollHeight;}
+function dayLabel(t){const d=new Date(t),n=new Date(),y=new Date(Date.now()-864e5);if(d.toDateString()===n.toDateString())return 'Today';if(d.toDateString()===y.toDateString())return 'Yesterday';return fmtDate(t);}
+function msgBody(m,mine){
+  const adm=role==='admin',tr=m.tr&&m.tr!==m.text?m.tr:'',pend=!mine&&!m.tr&&m.text&&m.kind!=='deleted'&&!(m.meta&&m.meta.trErr);
+  // Admin reads her Zulu with Amharic underneath; she reads the isiZulu translation with the Amharic original small.
+  const textBlock=(t)=>{if(!t&&!tr)return '';if(mine)return `<div>${esc(t)}</div>`;
+    if(adm)return `<div>${esc(t)}</div>${tr?`<span class="tr"><i>AMHARIC</i>${esc(tr)}</span>`:pend?'<span class="orig">translating…</span>':''}`;
+    return `<div>${esc(tr||t)}</div>${tr?`<span class="orig">${esc(t)}</span>`:pend?'<span class="orig">translating…</span>':''}`;};
+  let h='';
+  if(m.meta&&m.meta.reply){const r=CH.msgs.get(m.meta.reply);if(r)h+=`<div class="qref">${esc(r.kind==='image'?'📷 Photo':r.kind==='voice'?'🎤 Voice message':(r.text||'').slice(0,80))}</div>`;}
+  if(m.kind==='deleted')return '🚫 Message deleted';
+  if(m.kind==='image'){const w=m.meta.w,hh=m.meta.h,ar=w&&hh?`aspect-ratio:${w}/${hh};`:'';h+=`<img class="ph" loading="lazy" style="${ar}" src="${mediaUrl(m.media)}" data-view="${m.id}" alt="">`+textBlock(m.text);}
+  else if(m.kind==='voice'){h+=`<div class="vn" data-vid="${m.id}"><button data-vplay="${m.id}">${VO.id===m.id&&!VO.a.paused?'⏸':'▶'}</button><div class="vb"><i id="vb_${m.id}"></i></div><small>${fmtS(m.meta.dur||0)}</small></div>`;
+    if(m.text||tr)h+=`<span class="${mine?'orig':''}" style="display:block;margin-top:6px">${mine?'🎤 ':''}${textBlock(m.text)}</span>`;else if(!(m.meta&&m.meta.trErr))h+=`<span class="orig">${mine?'':'transcribing…'}</span>`;}
+  else if(m.kind==='answer'){const q=adm?(m.meta.qAm||m.meta.qZu):m.meta.qZu;
+    h+=`<div class="q">❓ ${esc(q||'')}</div>`+(adm?`<div>${esc(m.text)}</div>${tr?`<span class="tr"><i>AMHARIC</i>${esc(tr)}</span>`:'<span class="orig">translating…</span>'}${typeof m.meta.score==='number'?`<span class="sc" style="${scoreColor(m.meta.score)}">${m.meta.score}% · ${esc(m.meta.cat||'')}</span>${m.meta.scoreWhy?`<span class="orig am">${esc(m.meta.scoreWhy)}</span>`:''}`:''}`:`<div>${esc(m.text)}</div>`);}
+  else h+=textBlock(m.text);
+  return h;
 }
-V.m_chat=chatView;V.a_chat=chatView;
-function msgHTML(m){
-  const mine=(role==='admin')===(m.from==='me');
-  const main=mine?m.text:(m.tr||m.text),orig=!mine&&m.tr&&m.tr!==m.text?m.text:'';
-  return `<div class="m ${mine?'mine':'theirs'}">${esc(main)}${orig?`<span class="orig">${esc(orig)}</span>`:''}<small>${fmtTime(m.at)}</small></div>`;
+function msgEl(m){const mine=m.from===myId(),rx=m.meta&&m.meta.reacts?Object.values(m.meta.reacts).join(''):'';
+  return `<div class="b ${mine?'mine':'theirs'} ${m.kind==='answer'?'ans':''} ${m.kind==='deleted'?'deleted':''} ${rx?'withrx':''}" data-id="${m.id}">${msgBody(m,mine)}<div class="ft">${fmtTime(m.at)}${mine&&!String(m.id).startsWith('tmp')?`<span class="tick ${m.seen?'seen':''}">✓${m.seen?'✓':''}</span>`:mine?'<span class="tick">🕓</span>':''}</div>${rx?`<span class="rx">${rx}</span>`:''}</div>`;}
+function drawChat(force){
+  const list=[...CH.msgs.values()].sort((a,b)=>a.at-b.at);
+  const sig=list.map(m=>m.id+':'+(m.upd||0)+(m.seen?1:0)).join('|')+(VO.id||'');
+  if(!force&&sig===CH.drawn)return;CH.drawn=sig;
+  const el=$('#cpList');let html='',day='';
+  if(!list.length)html='<div class="empty" style="margin:auto">Say hi 💗<br><span class="mini">'+(role==='admin'?'Write in Amharic — she reads it in isiZulu.':'Messages are translated automatically.')+'</span></div>';
+  for(const m of list){const d=new Date(m.at).toDateString();if(d!==day){day=d;html+=`<div class="day">${dayLabel(m.at)}</div>`;}html+=msgEl(m);}
+  html+='<div class="typing" id="cpTyping"><i></i><i></i><i></i></div>';
+  el.innerHTML=html;drawStatus();scrollEnd(false);
 }
-function drawMsgs(){const el=$('#msgs');if(!el)return;el.innerHTML=chatMsgs.length?chatMsgs.map(msgHTML).join(''):'<div class="empty">Say hi 💗</div>';const main=$('#main');main.scrollTop=main.scrollHeight;}
-let chatLoaded=false;
-async function pullChat(){try{const d=await api('/api/chat?after='+lastChatAt);if(d.messages.length){chatMsgs=chatMsgs.concat(d.messages).slice(-400);lastChatAt=chatMsgs[chatMsgs.length-1].at;drawMsgs();}else if(!chatLoaded)drawMsgs();chatLoaded=true;}catch(e){}}
-function stopChat(){clearInterval(chatT);chatT=null;}
-function bindChat(){
-  if(chatLoaded)drawMsgs();pullChat();chatT=setInterval(()=>{if(!document.hidden)pullChat();},4000);
-  const send=async()=>{const i=$('#chatIn'),v=i.value.trim();if(!v)return;i.value='';
-    chatMsgs.push({id:'tmp',from:role==='admin'?'me':'her',text:v,at:Date.now()});drawMsgs();
-    try{const d=await api('/api/chat',{text:v});chatMsgs=chatMsgs.filter(m=>m.id!=='tmp');chatMsgs.push(d.msg);lastChatAt=Math.max(lastChatAt,d.msg.at);drawMsgs();}
-    catch(e){chatMsgs=chatMsgs.filter(m=>m.id!=='tmp');drawMsgs();i.value=v;toast('Not sent');}};
-  $('#chatSend').onclick=send;$('#chatIn').onkeydown=e=>{if(e.key==='Enter')send();};
-  const p=$('#pingHer');if(p)p.onclick=async()=>{buzz([30,60,30]);try{await api('/api/ping',{});toast('💗 Sent');}catch(e){toast('Not sent');}};
+function mergeMsgs(arr){let ch=false,newTheirs=false;for(const m of arr){const old=CH.msgs.get(m.id);if(!old&&m.from!==myId())newTheirs=true;if(!old||old.upd!==m.upd||old.seen!==m.seen){CH.msgs.set(m.id,m);ch=true;}CH.cursor=Math.max(CH.cursor,(m.upd||m.at)-3000);}
+  if(CH.msgs.size>500){const keep=[...CH.msgs.values()].sort((a,b)=>a.at-b.at).slice(-400);CH.msgs=new Map(keep.map(m=>[m.id,m]));}
+  return {ch,newTheirs};}
+const mediaUrl=id=>`${API}/api/media/${id}?t=${encodeURIComponent(token)}`;
+/* --- sync loop: 1.5 s while chat is open, 5 s otherwise; also carries music state --- */
+let syncT=null,syncing=false;
+async function syncNow(){
+  if(!token||syncing||role===null)return;syncing=true;
+  const t0=Date.now();
+  try{
+    const typing=Date.now()-CH.typingAt<3500?1:0;
+    const d=await api(`/api/sync?after=${CH.cursor}&open=${CH.open&&!document.hidden?1:0}&typing=${typing}&rec=${CH.recording?1:0}`);
+    const t1=Date.now(),rtt=t1-t0;if(rtt<=CH.bestRtt+60){CH.bestRtt=Math.min(CH.bestRtt,rtt);offset=d.now-(t0+t1)/2;}
+    const {ch,newTheirs}=mergeMsgs(d.messages);CH.other=d.other||{};
+    if(CH.open){if(ch)drawChat();else drawStatus();if(newTheirs)buzz(15);}
+    else if(newTheirs){buzz([20,40,20]);const last=d.messages.filter(m=>m.from!==myId()).pop();if(last&&last.kind!=='answer')toast('💌 '+(ST&&ST.partner?ST.partner.name:'New message')+': '+(last.kind==='image'?'📷 Photo':last.kind==='voice'?'🎤 Voice':(role==='admin'?last.text:(last.tr||last.text)).slice(0,40)));}
+    setUnread(CH.open?0:d.unread);
+    setListen(d.listen,null);
+  }catch(e){if(e.status===401||e.status===403)boot();}
+  finally{syncing=false;}
 }
-B.m_chat=bindChat;B.a_chat=bindChat;
+function startSync(){clearInterval(syncT);const loop=()=>{if(!document.hidden)syncNow();};syncT=setInterval(loop,1500);}
+let unreadN=0;function setUnread(n){if(n===unreadN)return;unreadN=n;const b=$('#nav [data-t=chat]');if(!b)return;let c=b.querySelector('.cnt');if(!n){c&&c.remove();return;}if(!c){c=document.createElement('span');c.className='cnt';b.appendChild(c);}c.textContent=n>99?'99+':n;}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncNow();});
+/* --- composer --- */
+(function(){
+  const inp=$('#cpIn'),send=$('#cpSend');
+  const fit=()=>{inp.style.height='auto';inp.style.height=Math.min(120,inp.scrollHeight)+'px';send.textContent=inp.value.trim()?'➤':'🎤';};
+  inp.addEventListener('input',()=>{CH.typingAt=Date.now();fit();});
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!/Android|iPhone/.test(navigator.userAgent)){e.preventDefault();sendText();}});
+  send.addEventListener('click',()=>{if(CH.recording){stopRec(true);return;}if(inp.value.trim())sendText();else startRec();});
+  async function sendText(){const v=inp.value.trim();if(!v)return;inp.value='';fit();CH.typingAt=0;inp.focus();
+    const tmp={id:'tmp'+Date.now(),from:myId(),kind:'text',text:v,tr:'',meta:CH.reply?{reply:CH.reply}:{},at:Date.now(),upd:Date.now(),seen:false};
+    const reply=CH.reply;setReply(null);CH.msgs.set(tmp.id,tmp);drawChat();scrollEnd(true);
+    try{const d=await api('/api/chat',{text:v,reply});CH.msgs.delete(tmp.id);mergeMsgs([d.msg]);drawChat();scrollEnd(true);}
+    catch(e){CH.msgs.delete(tmp.id);drawChat();inp.value=v;fit();toast('Not sent — check your connection');}}
+  $('#cpPhotoIn').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+    try{const {blob,w,h}=await toJpeg(f,1600);const cap=inp.value.trim();inp.value='';fit();
+      const tmp={id:'tmp'+Date.now(),from:myId(),kind:'image',text:cap,media:null,meta:{w,h},at:Date.now(),upd:Date.now()};CH.msgs.set(tmp.id,tmp);
+      drawChat();const ph=$(`[data-id="${tmp.id}"] img.ph`);if(ph)ph.src=URL.createObjectURL(blob);scrollEnd(true);
+      const r=await fetch(API+'/api/chat/media?kind=image',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'image/jpeg','X-Caption':encodeURIComponent(cap),'X-W':w,'X-H':h},body:blob});
+      const d=await r.json();CH.msgs.delete(tmp.id);if(!r.ok)throw new Error(d.error);mergeMsgs([d.msg]);drawChat(true);scrollEnd(true);
+    }catch(er){[...CH.msgs.keys()].filter(k=>String(k).startsWith('tmp')).forEach(k=>CH.msgs.delete(k));drawChat(true);toast('Photo not sent: '+er.message);}});
+  $('#cpPing').onclick=async()=>{buzz([30,60,30]);try{await api('/api/ping',{});toast('💗 Heartbeat sent');}catch(e){toast('Not sent');}};
+  $('#cpMusic').onclick=()=>openSheet();
+  $('#cpReplyX').onclick=()=>setReply(null);
+  $('#recX').onclick=()=>stopRec(false);
+})();
+function setReply(id){CH.reply=id;const m=id&&CH.msgs.get(id);$('#cpReply').classList.toggle('on',!!m);if(m)$('#cpReplyT').textContent='↩ '+(m.kind==='image'?'📷 Photo':m.kind==='voice'?'🎤 Voice message':(m.from===myId()?m.text:(role==='admin'?m.text:(m.tr||m.text))));}
+async function toJpeg(file,max){const url=URL.createObjectURL(file);try{const im=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url;});
+  const s=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.85));return {blob,w:c.width,h:c.height};}finally{URL.revokeObjectURL(url);}}
+/* --- voice notes --- */
+let REC=null;
+async function startRec(){
+  if(!navigator.mediaDevices||!window.MediaRecorder){toast('Voice messages are not supported on this phone');return;}
+  try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    const mime=['audio/webm;codecs=opus','audio/ogg;codecs=opus','audio/mp4','audio/webm'].find(t=>MediaRecorder.isTypeSupported(t))||'';
+    const mr=new MediaRecorder(stream,mime?{mimeType:mime,audioBitsPerSecond:32000}:{});const chunks=[];mr.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+    REC={mr,stream,chunks,start:Date.now(),mime:mr.mimeType||mime||'audio/webm',t:setInterval(()=>{const s=(Date.now()-REC.start)/1000;$('#recT').textContent=fmtS(s);if(s>=300)stopRec(true);},250)};
+    mr.start(250);CH.recording=true;$('#cpBar').classList.add('rec');$('#cpSend').textContent='➤';buzz(30);syncNow();
+  }catch(e){toast(e&&e.name==='NotAllowedError'?'Allow the microphone for Ti in your phone settings':'Microphone not available');}
+}
+function stopRec(sendIt){
+  if(!REC)return;const r=REC;REC=null;clearInterval(r.t);CH.recording=false;$('#cpBar').classList.remove('rec');$('#cpSend').textContent='🎤';$('#recT').textContent='0:00';
+  r.mr.onstop=async()=>{r.stream.getTracks().forEach(t=>t.stop());const dur=(Date.now()-r.start)/1000;if(!sendIt||dur<0.8){if(sendIt)toast('Hold on a little longer');return;}
+    const blob=new Blob(r.chunks,{type:r.mime});const tmp={id:'tmp'+Date.now(),from:myId(),kind:'voice',text:'',media:null,meta:{dur},at:Date.now(),upd:Date.now()};CH.msgs.set(tmp.id,tmp);drawChat();scrollEnd(true);
+    try{const res=await fetch(API+'/api/chat/media?kind=voice',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':r.mime,'X-Dur':String(Math.round(dur))},body:blob});const d=await res.json();CH.msgs.delete(tmp.id);if(!res.ok)throw new Error(d.error);mergeMsgs([d.msg]);drawChat(true);}
+    catch(er){CH.msgs.delete(tmp.id);drawChat(true);toast('Voice not sent: '+er.message);}};
+  try{r.mr.stop();}catch(e){}buzz(15);
+}
+/* --- voice playback (one shared player so redraws never cut it off) --- */
+const VO={a:new Audio(),id:null};
+VO.a.addEventListener('timeupdate',()=>{const b=VO.id&&document.getElementById('vb_'+VO.id);if(b&&VO.a.duration)b.style.width=(VO.a.currentTime/VO.a.duration*100)+'%';});
+VO.a.addEventListener('ended',()=>{const id=VO.id;VO.id=null;drawChat(true);if(id&&aud.dataset.duck){aud.volume=+aud.dataset.duck;delete aud.dataset.duck;}});
+/* --- taps inside the list: play voice, open photo, long-press menu --- */
+(function(){const list=$('#cpList');let pressT=null,moved=false;
+  list.addEventListener('click',e=>{const p=e.target.closest('[data-vplay]');if(p){const m=CH.msgs.get(p.dataset.vplay);if(!m||!m.media)return;
+      if(VO.id===m.id&&!VO.a.paused){VO.a.pause();p.textContent='▶';return;}
+      if(VO.id!==m.id){VO.a.src=mediaUrl(m.media);VO.id=m.id;}
+      if(!aud.paused&&!aud.dataset.duck){aud.dataset.duck=aud.volume;aud.volume=Math.min(aud.volume,.15);}
+      VO.a.play().then(()=>drawChat(true)).catch(()=>toast('Could not play'));return;}
+    const v=e.target.closest('[data-view]');if(v){const m=CH.msgs.get(v.dataset.view);openViewer(v.currentSrc||v.src,m?(role==='admin'||m.from===myId()?m.text:(m.tr||m.text)):'');}});
+  list.addEventListener('pointerdown',e=>{const b=e.target.closest('.b');if(!b||String(b.dataset.id).startsWith('tmp'))return;moved=false;pressT=setTimeout(()=>{buzz(25);openMsgMenu(b.dataset.id);},480);});
+  ['pointerup','pointercancel','pointerleave'].forEach(t=>list.addEventListener(t,()=>clearTimeout(pressT)));
+  list.addEventListener('pointermove',()=>{clearTimeout(pressT);});
+  list.addEventListener('contextmenu',e=>{if(e.target.closest('.b'))e.preventDefault();});
+  list.addEventListener('dblclick',e=>{const b=e.target.closest('.b');if(b&&!String(b.dataset.id).startsWith('tmp'))reactMsg(b.dataset.id,'❤️');});
+})();
+function openMsgMenu(id){const m=CH.msgs.get(id);if(!m||m.kind==='deleted')return;const mine=m.from===myId();
+  $('#mmRx').innerHTML=['❤️','😂','😍','🥹','👍'].map(e=>`<button data-rx="${e}">${e}</button>`).join('');
+  $('#mmItems').innerHTML=`<button class="it" data-a="reply">↩  Reply</button>${m.text?'<button class="it" data-a="copy">⧉  Copy text</button>':''}${m.kind==='image'?'<button class="it" data-a="open">🖼  Open photo</button>':''}${mine?'<button class="it" data-a="del" style="color:#ffd0d6">🗑  Delete for both</button>':''}<button class="it" data-a="x" style="opacity:.7">Cancel</button>`;
+  const mm=$('#msgMenu');mm.classList.add('on');
+  mm.onclick=async e=>{const r=e.target.closest('[data-rx]'),a=e.target.closest('[data-a]');if(e.target===mm||a&&a.dataset.a==='x'){mm.classList.remove('on');return;}
+    if(r){mm.classList.remove('on');reactMsg(id,r.dataset.rx);return;}if(!a)return;mm.classList.remove('on');
+    if(a.dataset.a==='reply'){setReply(id);$('#cpIn').focus();}
+    if(a.dataset.a==='copy'){try{await navigator.clipboard.writeText(role==='admin'||mine?m.text:(m.tr||m.text));toast('Copied');}catch(er){toast('Copy not allowed');}}
+    if(a.dataset.a==='open')openViewer(mediaUrl(m.media),m.text);
+    if(a.dataset.a==='del'){try{const d=await api(`/api/chat/${id}/delete`,{});mergeMsgs([d.msg]);drawChat(true);}catch(er){toast('Not deleted');}}};}
+async function reactMsg(id,e){buzz(12);try{const d=await api(`/api/chat/${id}/react`,{e});mergeMsgs([d.msg]);drawChat(true);}catch(er){}}
+/* --- keyboard: keep the composer above it (browser + Android app) --- */
+(function(){let base=window.innerHeight;
+  const setKb=h=>{h=Math.max(0,Math.round(h));document.documentElement.style.setProperty('--kb',h+'px');document.body.classList.toggle('kb',h>80);if(h>80)setTimeout(()=>scrollEnd(true),60);};
+  const vv=window.visualViewport;if(vv){const f=()=>setKb(window.innerHeight-vv.height-vv.offsetTop);vv.addEventListener('resize',f);vv.addEventListener('scroll',f);}
+  addEventListener('resize',()=>{if(window.innerHeight>base)base=window.innerHeight;});
+  const K=window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.Keyboard;
+  if(K&&K.addListener){K.addListener('keyboardWillShow',i=>{const shrunk=base-window.innerHeight;setKb(shrunk>100?0:i.keyboardHeight);document.body.classList.add('kb');});
+    K.addListener('keyboardWillHide',()=>{setKb(0);document.body.classList.remove('kb');});}
+  document.addEventListener('focusout',()=>setTimeout(()=>{if(!/INPUT|TEXTAREA/.test((document.activeElement||{}).tagName||''))setKb(0);},120));
+})();
+/* --- full-screen photo viewer with pinch-zoom --- */
+const VW={s:1,x:0,y:0,src:''};
+function vwApply(){$('#vImg').style.transform=`translate(calc(-50% + ${VW.x}px),calc(-50% + ${VW.y}px)) scale(${VW.s})`;}
+function openViewer(src,cap){if(!src)return;VW.s=1;VW.x=0;VW.y=0;VW.src=src;$('#vImg').src=src;vwApply();$('#vCap').textContent=cap||'';$('#vCap').style.display=cap?'block':'none';$('#viewer').classList.add('on');}
+window.TiView=openViewer;
+(function(){const v=$('#viewer'),pts=new Map();let st=null,lastTap=0;
+  $('#vX').onclick=()=>v.classList.remove('on');
+  $('#vSave').onclick=async()=>{try{const b=await (await fetch(VW.src)).blob();await saveBlob(b,'Ti-photo.jpg');}catch(e){toast('Could not save');}};
+  v.addEventListener('pointerdown',e=>{if(e.target.closest('.vt'))return;v.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    const now=Date.now();if(pts.size===1&&now-lastTap<300){VW.s=VW.s>1?1:2.5;VW.x=VW.y=0;vwApply();}lastTap=now;
+    const a=[...pts.values()];st={s:VW.s,x:VW.x,y:VW.y,d:a.length>1?Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y):0,p:{...a[0]}};});
+  v.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId)||!st)return;pts.set(e.pointerId,{x:e.clientX,y:e.clientY});const a=[...pts.values()];
+    if(a.length>1&&st.d){VW.s=Math.max(1,Math.min(5,st.s*Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)/st.d));}
+    else if(VW.s>1){VW.x=st.x+(a[0].x-st.p.x);VW.y=st.y+(a[0].y-st.p.y);}
+    else{VW.y=Math.max(0,a[0].y-st.p.y);}vwApply();});
+  const up=e=>{pts.delete(e.pointerId);if(!pts.size){if(VW.s===1&&VW.y>120)v.classList.remove('on');if(VW.s===1){VW.x=VW.y=0;vwApply();}st=null;}else{const a=[...pts.values()];st={s:VW.s,x:VW.x,y:VW.y,d:0,p:{...a[0]}};}};
+  v.addEventListener('pointerup',up);v.addEventListener('pointercancel',up);})();
+async function saveBlob(blob,name){const C=window.Capacitor;
+  if(C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins&&C.Plugins.Filesystem&&C.Plugins.Share){const data=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(String(fr.result).split(',')[1]);fr.readAsDataURL(blob);});
+    const w=await C.Plugins.Filesystem.writeFile({path:name,data,directory:'CACHE'});await C.Plugins.Share.share({title:name,files:[w.uri]});return;}
+  const f=new File([blob],name,{type:blob.type});if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return;}catch(e){if(e.name==='AbortError')return;}}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();toast('Saved');}
 
 /* ================= ADMIN ================= */
 const scoreColor=v=>v==null?'':v>=70?'background:rgba(138,255,209,.4)':v>=50?'background:rgba(255,224,138,.45)':'background:rgba(255,60,100,.5)';
@@ -797,19 +1053,30 @@ const srvNow=()=>Date.now()+offset;
 const expected=()=>!L?0:L.playing?L.pos+(srvNow()-L.anchor)/1000:L.pos;
 const audUrl=id=>`${API}/api/audio/${id}?t=${encodeURIComponent(token)}`;
 const fmtS=x=>{x=Math.max(0,x|0);return (x/60|0)+':'+String(x%60).padStart(2,'0');};
-function setListen(l,now){if(now)offset=now-Date.now();const prev=L;L=l||null;
+function setListen(l,now){if(now&&!CH.bestRtt)offset=now-Date.now();const prev=L;L=l||null;
   document.body.classList.toggle('listening',!!L);
   if(!L){if(!aud.paused)aud.pause();aud.removeAttribute('src');joined=false;spSync(false);}
   else if(!prev||prev.v!==L.v||prev.id!==L.id){sync(true);spSync(true);}
   (L&&L.reacts||[]).forEach(r=>{if(r.at>reactSeen){reactSeen=r.at;if((role==='admin')!==(r.from==='me'))flyEmoji(r.e);}});
   drawBar();if($('#msheet').classList.contains('on'))drawSheet(false);}
+// Keeps both phones together without fighting the network: gentle speed nudges for small drift,
+// a rare jump for big drift, and never while the song is still loading.
+let lastSeek=0;
+function seekTo(t){lastSeek=Date.now();try{aud.currentTime=Math.max(0,t);}catch(e){}}
 function sync(force){
   if(!L||L.kind!=='audio'||!joined)return;
-  const url=audUrl(L.id);if(aud.dataset.id!==L.id){aud.src=url;aud.dataset.id=L.id;}
+  if(aud.dataset.id!==L.id){aud.src=audUrl(L.id);aud.dataset.id=L.id;force=true;}
   const e=expected();
-  if(L.dur&&e>L.dur+1){aud.pause();return;}
-  if(L.playing){if(force||Math.abs(aud.currentTime-e)>1.2){try{aud.currentTime=e;}catch(er){}}if(aud.paused)aud.play().catch(()=>{joined=false;drawBar();});}
-  else{aud.pause();if(Math.abs(aud.currentTime-e)>.5)try{aud.currentTime=e;}catch(er){}}
+  if(L.dur&&e>L.dur+1){if(!aud.paused)aud.pause();aud.playbackRate=1;if(role==='admin'&&e>L.dur+3&&!sync.ending){sync.ending=1;api('/api/listen',{action:'stop'}).then(d=>setListen(d.listen,null)).catch(()=>{}).finally(()=>sync.ending=0);}return;}
+  if(!L.playing){if(!aud.paused)aud.pause();aud.playbackRate=1;if(Math.abs(aud.currentTime-e)>.6&&aud.readyState>=1)seekTo(e);return;}
+  const loading=aud.readyState<3||aud.seeking,d=aud.currentTime-e;
+  if(force)seekTo(e);
+  else if(!loading){
+    if(Math.abs(d)>4&&Date.now()-lastSeek>8000)seekTo(e);
+    else if(Math.abs(d)>.25)aud.playbackRate=Math.max(.92,Math.min(1.08,1-d*.08));
+    else aud.playbackRate=1;
+  }
+  if(aud.paused)aud.play().catch(er=>{if(er&&er.name==='NotAllowedError'){joined=false;drawBar();}});
   if('mediaSession' in navigator)try{navigator.mediaSession.metadata=new MediaMetadata({title:L.title,artist:'Ti · together',artwork:[{src:'icon-512.png',sizes:'512x512',type:'image/png'}]});}catch(er){}
 }
 function join(){joined=true;sync(true);spSync(true);drawBar();}
@@ -935,14 +1202,7 @@ async function makeCard(back){
     x.font=`900 104px ${F}`;x.fillText('Ti',58,140);
     x.font=`700 22px Manrope, sans-serif`;x.textAlign='right';x.fillStyle='rgba(255,255,255,.85)';
     x.fillText('M E M B E R   C A R D',W-58,80);x.fillText('No. Ti · 0001',W-58,116);x.textAlign='left';
-    const [ia,ih]=await Promise.all([loadImg(img(n.aP)),loadImg(img(n.hP))]);
-    const circ=(im,cx,cy,r,ini)=>{x.save();x.beginPath();x.arc(cx,cy,r,0,7);x.closePath();x.fillStyle='#c2185b';x.fill();x.clip();
-      if(im){const s=Math.max(2*r/im.width,2*r/im.height);x.drawImage(im,cx-im.width*s/2,cy-im.height*s/2,im.width*s,im.height*s);}
-      else{x.fillStyle='#fff';x.font=`700 70px ${F}`;x.textAlign='center';x.fillText(ini,cx,cy+25);x.textAlign='left';}
-      x.restore();x.beginPath();x.arc(cx,cy,r,0,7);x.strokeStyle='#fff';x.lineWidth=7;x.stroke();};
-    circ(ia,170,320,100,(n.aN[0]||'?').toUpperCase());circ(ih,350,320,100,(n.hN[0]||'?').toUpperCase());
-    x.beginPath();x.arc(260,320,34,0,7);x.fillStyle='#fff';x.shadowColor='rgba(255,255,255,.9)';x.shadowBlur=24;x.fill();x.shadowBlur=0;
-    x.fillStyle='#e0137a';x.font=`34px sans-serif`;x.textAlign='center';x.fillText('♥',260,332);x.textAlign='left';
+    await drawHeart(x,262,318,300);
     x.fillStyle='#fff';x.font=`600 44px ${F}`;x.fillText(`${n.aN} & ${n.hN}`,58,518,760);
     x.font=`700 22px Manrope, sans-serif`;x.fillStyle='rgba(255,255,255,.85)';x.fillText(('SINCE '+fmtDate(ST.since)).toUpperCase().split('').join(' '),60,565);
     g=x.createLinearGradient(850,470,950,540);g.addColorStop(0,'#fff3c4');g.addColorStop(1,'#d6a646');x.fillStyle=g;rr(x,850,470,100,74,12);x.fill();
