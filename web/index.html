@@ -857,7 +857,7 @@ function renderSheet(){
     <div class="reacts">${['❤️','😍','🥹','🔥','😘'].map(x=>`<button data-r="${x}">${x}</button>`).join('')}</div>`
   :`<div class="bigdisc paused"></div><div style="text-align:center;font-family:Unbounded;font-weight:500">Nothing playing</div><div class="mini" style="text-align:center;margin-top:4px">${adm?'Pick a song below — it plays on both phones.':'When '+esc((ST.partner||{}).name||'he')+' plays a song, it appears here.'}</div>`}
   ${adm?`<div class="eyebrow">Our songs · ${songs.length}</div>
-    <label class="btn block" style="margin-bottom:8px">＋ Upload song (MP3, up to 20 MB)<input type="file" accept="audio/*" id="sUp" style="display:none"></label>
+    <label class="btn block" style="margin-bottom:8px" id="sUpL">＋ Upload song (MP3, up to ${(ST&&ST.maxAudioMB)||20} MB)<input type="file" accept="audio/*" id="sUp" style="display:none"></label><div class="bar" id="upBar" style="display:none;margin:-2px 0 10px"><i style="width:0%"></i></div>
     ${songs.slice().reverse().map(x=>`<div class="song" data-id="${x.id}"><div class="t"><b>${esc(x.title)}</b><span class="mini">${(x.size/1048576).toFixed(1)} MB${x.dur?' · '+fmtS(x.dur):''}</span></div><button class="btn ok sm" data-p="play">▶ Both</button><button class="btn sm" data-p="del">🗑</button></div>`).join('')||'<div class="mini">No songs yet.</div>'}
     <div class="eyebrow">Or a Spotify link</div>
     <input type="url" id="sSpot" placeholder="https://open.spotify.com/track/…" enterkeyhint="send"><button class="btn sm" style="margin-top:8px" id="sSpotGo">Share with her</button>`:''}`;
@@ -874,8 +874,14 @@ function renderSheet(){
   $$('#msBody .song [data-p]').forEach(b=>b.onclick=async()=>{const id=b.closest('.song').dataset.id;
     if(b.dataset.p==='play'){joined=true;await act('play',{id});toast('🎧 Playing on both phones');}
     else{await withBtn(b,async()=>{await api(`/api/admin/audio/${id}/delete`,{});await reload(true);drawSheet(true);});}});
-  if(q('#sUp'))q('#sUp').onchange=async e=>{const f=e.target.files[0];if(!f)return;if(f.size>20*1048576){toast('Max 20 MB');return;}
-    toast('Uploading '+f.name+'…');try{const r=await fetch(API+'/api/admin/audio',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':f.type||'audio/mpeg','X-Title':encodeURIComponent(f.name)},body:f});if(!r.ok)throw new Error((await r.json()).error);await reload(true);drawSheet(true);toast('Song added 🎶');}catch(er){toast('Upload failed: '+er.message);}};
+  if(q('#sUp'))q('#sUp').onchange=e=>{const f=e.target.files[0];if(!f)return;const max=(ST&&ST.maxAudioMB)||20;
+    if(f.size>max*1048576){toast(`Too big: ${(f.size/1048576).toFixed(0)} MB (max ${max} MB)`);return;}
+    const bar=q('#upBar'),lab=q('#sUpL');bar.style.display='block';lab.style.pointerEvents='none';lab.firstChild.textContent='Uploading… 0%';busy=true;
+    const x=new XMLHttpRequest();x.open('POST',API+'/api/admin/audio');x.setRequestHeader('Authorization','Bearer '+token);x.setRequestHeader('Content-Type',f.type||'audio/mpeg');x.setRequestHeader('X-Title',encodeURIComponent(f.name));
+    x.upload.onprogress=ev=>{if(ev.lengthComputable){const p=Math.round(ev.loaded/ev.total*100);bar.firstChild.style.width=p+'%';lab.firstChild.textContent=`Uploading… ${p}%  (${(ev.loaded/1048576).toFixed(1)} / ${(ev.total/1048576).toFixed(1)} MB)`;}};
+    const done=async(ok,msg)=>{busy=false;if(ok){await reload(true);drawSheet(true);toast('Song added 🎶');}else{bar.style.display='none';lab.style.pointerEvents='';lab.firstChild.textContent='＋ Upload song';toast('Upload failed: '+msg);}};
+    x.onload=()=>{let d={};try{d=JSON.parse(x.responseText)}catch(er){}x.status<300?done(true):done(false,d.error||('HTTP '+x.status));};
+    x.onerror=()=>done(false,'network error — try on Wi-Fi');x.send(f);};
   const spGo=async()=>{const inp=q('#sSpot'),u=(inp.value.match(/https?:\/\/\S+/)||[''])[0].trim();if(!spotifyEmbed(u)){toast('Paste a Spotify song link');return;}
     inp.blur();toast('Sharing…');let title='Spotify song';
     try{const ac=new AbortController();const t=setTimeout(()=>ac.abort(),2500);const o=await (await fetch('https://open.spotify.com/oembed?url='+encodeURIComponent(u),{signal:ac.signal})).json();clearTimeout(t);if(o&&o.title)title=o.title;}catch(e){}
