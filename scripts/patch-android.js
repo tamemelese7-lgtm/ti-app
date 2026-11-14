@@ -22,9 +22,12 @@ if (!g.includes('TI_KEYSTORE')) {
 }
 const man = 'android/app/src/main/AndroidManifest.xml';
 let m = fs.readFileSync(man, 'utf8');
-if (!m.includes('android.permission.VIBRATE')) {
-  m = m.replace('<uses-permission android:name="android.permission.INTERNET" />', '<uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.VIBRATE" />');
-  if (!m.includes('VIBRATE')) m = m.replace('</manifest>', '    <uses-permission android:name="android.permission.VIBRATE" />\n</manifest>');
-  fs.writeFileSync(man, m);
+// Vibration, and the microphone for voice messages.
+for (const perm of ['VIBRATE', 'RECORD_AUDIO', 'MODIFY_AUDIO_SETTINGS']) {
+  if (!m.includes('android.permission.' + perm)) m = m.replace('</manifest>', `    <uses-permission android:name="android.permission.${perm}" />\n</manifest>`);
 }
+// Keep the chat box above the keyboard.
+if (!m.includes('windowSoftInputMode')) m = m.replace(/<activity(\s)/, '<activity android:windowSoftInputMode="adjustResize"$1');
+fs.writeFileSync(man, m);
+if (!/RECORD_AUDIO/.test(m) || !/windowSoftInputMode/.test(m)) { console.error('manifest patch failed'); process.exit(1); }
 console.log('Android project patched');
