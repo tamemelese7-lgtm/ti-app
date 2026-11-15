@@ -773,10 +773,11 @@ function scrollEnd(force){const l=$('#cpList');if(!l)return;if(force||l.scrollHe
 function dayLabel(t){const d=new Date(t),n=new Date(),y=new Date(Date.now()-864e5);if(d.toDateString()===n.toDateString())return 'Today';if(d.toDateString()===y.toDateString())return 'Yesterday';return fmtDate(t);}
 function msgBody(m,mine){
   const adm=role==='admin',tr=m.tr&&m.tr!==m.text?m.tr:'',pend=!mine&&!m.tr&&m.text&&m.kind!=='deleted'&&!(m.meta&&m.meta.trErr);
+  const failNote=!mine&&!m.tr&&m.text&&m.meta&&m.meta.trErr&&m.kind!=='answer'?'<span class="orig">⚠ translation unavailable</span>':'';
   // Admin reads her Zulu with Amharic underneath; she reads the isiZulu translation with the Amharic original small.
   const textBlock=(t)=>{if(!t&&!tr)return '';if(mine)return `<div>${esc(t)}</div>`;
-    if(adm)return `<div>${esc(t)}</div>${tr?`<span class="tr"><i>AMHARIC</i>${esc(tr)}</span>`:pend?'<span class="orig">translating…</span>':''}`;
-    return `<div>${esc(tr||t)}</div>${tr?`<span class="orig">${esc(t)}</span>`:pend?'<span class="orig">translating…</span>':''}`;};
+    if(adm)return `<div>${esc(t)}</div>${tr?`<span class="tr"><i>AMHARIC</i>${esc(tr)}</span>`:pend?'<span class="orig">translating…</span>':failNote}`;
+    return `<div>${esc(tr||t)}</div>${tr?`<span class="orig">${esc(t)}</span>`:pend?'<span class="orig">translating…</span>':failNote}`;};
   let h='';
   if(m.meta&&m.meta.reply){const r=CH.msgs.get(m.meta.reply);if(r)h+=`<div class="qref">${esc(r.kind==='image'?'📷 Photo':r.kind==='voice'?'🎤 Voice message':(r.text||'').slice(0,80))}</div>`;}
   if(m.kind==='deleted')return '🚫 Message deleted';
@@ -784,7 +785,7 @@ function msgBody(m,mine){
   else if(m.kind==='voice'){h+=`<div class="vn" data-vid="${m.id}"><button data-vplay="${m.id}">${VO.id===m.id&&!VO.a.paused?'⏸':'▶'}</button><div class="vb"><i id="vb_${m.id}"></i></div><small>${fmtS(m.meta.dur||0)}</small></div>`;
     if(m.text||tr)h+=`<span class="${mine?'orig':''}" style="display:block;margin-top:6px">${mine?'🎤 ':''}${textBlock(m.text)}</span>`;else if(!(m.meta&&m.meta.trErr))h+=`<span class="orig">${mine?'':'transcribing…'}</span>`;}
   else if(m.kind==='answer'){const q=adm?(m.meta.qAm||m.meta.qZu):m.meta.qZu;
-    h+=`<div class="q">❓ ${esc(q||'')}</div>`+(adm?`<div>${esc(m.text)}</div>${tr?`<span class="tr"><i>AMHARIC</i>${esc(tr)}</span>`:'<span class="orig">translating…</span>'}${typeof m.meta.score==='number'?`<span class="sc" style="${scoreColor(m.meta.score)}">${m.meta.score}% · ${esc(m.meta.cat||'')}</span>${m.meta.scoreWhy?`<span class="orig am">${esc(m.meta.scoreWhy)}</span>`:''}`:''}`:`<div>${esc(m.text)}</div>`);}
+    h+=`<div class="q">❓ ${esc(q||'')}</div>`+(adm?`<div>${esc(m.text)}</div>${tr?`<span class="tr"><i>AMHARIC</i>${esc(tr)}</span>`:(m.meta.trErr?'<span class="orig">⚠ translation unavailable</span>':'<span class="orig">translating…</span>')}${typeof m.meta.score==='number'?`<span class="sc" style="${scoreColor(m.meta.score)}">${m.meta.score}% · ${esc(m.meta.cat||'')}</span>${m.meta.scoreWhy?`<span class="orig am">${esc(m.meta.scoreWhy)}</span>`:''}`:''}`:`<div>${esc(m.text)}</div>`);}
   else h+=textBlock(m.text);
   return h;
 }
